@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- ==================== CUSTOMER ==================== -->
+    <changeSet id="create-customer-table" author="vatanyan">
+        <createTable tableName="customer">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_customer_email"/>
+            </column>
+            <column name="balance" type="NUMERIC(12,2)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>ALTER TABLE customer ADD CONSTRAINT chk_customer_balance CHECK (balance >= 0);</sql>
+    </changeSet>
+
+    <!-- ==================== PRODUCT ==================== -->
+    <changeSet id="create-product-table" author="vatanyan">
+        <createTable tableName="product">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sku" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_product_sku"/>
+            </column>
+            <column name="price" type="NUMERIC(12,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stock" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>ALTER TABLE product ADD CONSTRAINT chk_product_price CHECK (price > 0);
+ALTER TABLE product ADD CONSTRAINT chk_product_stock CHECK (stock >= 0);</sql>
+    </changeSet>
+
+    <!-- ==================== ORDERS ==================== -->
+    <changeSet id="create-orders-table" author="vatanyan">
+        <createTable tableName="orders">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_orders_customer"
+                             references="customer(id)"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="NUMERIC(12,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- ==================== ORDER_ITEM ==================== -->
+    <changeSet id="create-order-item-table" author="vatanyan">
+        <createTable tableName="order_item">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_order_item_order"
+                             references="orders(id)"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_order_item_product"
+                             references="product(id)"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price_at_purchase" type="NUMERIC(12,2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>ALTER TABLE order_item ADD CONSTRAINT chk_order_item_quantity CHECK (quantity > 0);</sql>
+    </changeSet>
+
+</databaseChangeLog>
