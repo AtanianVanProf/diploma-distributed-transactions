@@ -5,6 +5,8 @@ import am.diploma.monolith.dto.OrderItemRequest;
 import am.diploma.monolith.dto.OrderResponse;
 import am.diploma.monolith.entity.Customer;
 import am.diploma.monolith.entity.Order;
+import am.diploma.monolith.entity.OrderItem;
+import am.diploma.monolith.entity.OrderStatus;
 import am.diploma.monolith.entity.Product;
 import am.diploma.monolith.exception.NotFoundException;
 import am.diploma.monolith.repository.CustomerRepository;
@@ -19,6 +21,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -202,5 +206,94 @@ class OrderServiceTest {
         OrderResponse response = orderService.placeOrder(request);
 
         assertEquals("COMPLETED", response.getStatus());
+    }
+
+    // --- getAllOrders / getOrderById tests ---
+
+    private Order buildOrderWithItems(Long orderId, Customer customer, Product product, int quantity) {
+        Order order = Order.builder()
+                .id(orderId)
+                .customer(customer)
+                .status(OrderStatus.COMPLETED)
+                .totalAmount(product.getPrice().multiply(BigDecimal.valueOf(quantity)))
+                .createdAt(LocalDateTime.of(2026, 4, 1, 12, 0))
+                .items(new ArrayList<>())
+                .build();
+        OrderItem item = OrderItem.builder()
+                .id(orderId * 10)
+                .order(order)
+                .product(product)
+                .quantity(quantity)
+                .priceAtPurchase(product.getPrice())
+                .build();
+        order.getItems().add(item);
+        return order;
+    }
+
+    @Test
+    @DisplayName("getAllOrders returns mapped OrderResponse list")
+    void getAllOrders_returnsAllMappedResponses() {
+        Customer customer = Customer.builder().id(1L).name("Alice").email("alice@example.com")
+                .balance(new BigDecimal("10000.00")).build();
+        Product laptop = Product.builder().id(1L).name("Laptop Pro 15").sku("LAP-001")
+                .price(new BigDecimal("1299.99")).stock(10).build();
+        Product mouse = Product.builder().id(2L).name("Wireless Mouse").sku("MOU-001")
+                .price(new BigDecimal("29.99")).stock(20).build();
+
+        Order order1 = buildOrderWithItems(1L, customer, laptop, 2);
+        Order order2 = buildOrderWithItems(2L, customer, mouse, 1);
+
+        when(orderRepository.findAllWithItems()).thenReturn(List.of(order1, order2));
+
+        List<OrderResponse> responses = orderService.getAllOrders();
+
+        assertEquals(2, responses.size());
+        assertEquals(1L, responses.getFirst().getOrderId());
+        assertEquals(new BigDecimal("2599.98"), responses.getFirst().getTotalAmount());
+        assertEquals(2L, responses.get(1).getOrderId());
+        assertEquals(new BigDecimal("29.99"), responses.get(1).getTotalAmount());
+    }
+
+    @Test
+    @DisplayName("getAllOrders returns empty list when no orders exist")
+    void getAllOrders_noOrders_returnsEmptyList() {
+        when(orderRepository.findAllWithItems()).thenReturn(Collections.emptyList());
+
+        List<OrderResponse> responses = orderService.getAllOrders();
+
+        assertEquals(0, responses.size());
+    }
+
+    @Test
+    @DisplayName("getOrderById returns correct OrderResponse with items")
+    void getOrderById_existingOrder_returnsCorrectResponse() {
+        Customer customer = Customer.builder().id(1L).name("Alice").email("alice@example.com")
+                .balance(new BigDecimal("10000.00")).build();
+        Product laptop = Product.builder().id(1L).name("Laptop Pro 15").sku("LAP-001")
+                .price(new BigDecimal("1299.99")).stock(10).build();
+
+        Order order = buildOrderWithItems(1L, customer, laptop, 2);
+        when(orderRepository.findByIdWithItems(1L)).thenReturn(Optional.of(order));
+
+        OrderResponse response = orderService.getOrderById(1L);
+
+        assertEquals(1L, response.getOrderId());
+        assertEquals(1L, response.getCustomerId());
+        assertEquals("COMPLETED", response.getStatus());
+        assertEquals(new BigDecimal("2599.98"), response.getTotalAmount());
+        assertEquals(1, response.getItems().size());
+        assertEquals("Laptop Pro 15", response.getItems().getFirst().getProductName());
+    }
+
+    @Test
+    @DisplayName("getOrderById throws NotFoundException for non-existent order")
+    void getOrderById_orderNotFound_throwsNotFoundException() {
+        when(orderRepository.findByIdWithItems(99L)).thenReturn(Optional.empty());
+
+        NotFoundException ex = assertThrows(NotFoundException.class,
+                () -> orderService.getOrderById(99L));
+
+        assertEquals("ORDER_NOT_FOUND", ex.getErrorCode());
+        assertEquals("Order with ID 99 not found", ex.getMessage());
     }
 }

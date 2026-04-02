@@ -74,6 +74,25 @@ public class OrderService {
 
         order.setStatus(OrderStatus.COMPLETED);
 
+        return mapToOrderResponse(order);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAllWithItems().stream()
+                .map(this::mapToOrderResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse getOrderById(Long id) {
+        Order order = orderRepository.findByIdWithItems(id)
+                .orElseThrow(() -> new NotFoundException("ORDER_NOT_FOUND",
+                        "Order with ID " + id + " not found"));
+        return mapToOrderResponse(order);
+    }
+
+    private OrderResponse mapToOrderResponse(Order order) {
         List<OrderItemResponse> itemResponses = order.getItems().stream()
                 .map(oi -> OrderItemResponse.builder()
                         .productId(oi.getProduct().getId())
@@ -85,7 +104,7 @@ public class OrderService {
 
         return OrderResponse.builder()
                 .orderId(order.getId())
-                .customerId(customer.getId())
+                .customerId(order.getCustomer().getId())
                 .status(order.getStatus().name())
                 .totalAmount(order.getTotalAmount())
                 .items(itemResponses)
