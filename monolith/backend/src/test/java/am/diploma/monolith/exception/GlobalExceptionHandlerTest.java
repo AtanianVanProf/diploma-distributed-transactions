@@ -102,4 +102,19 @@ class GlobalExceptionHandlerTest {
         assertEquals("A database constraint was violated", body.getMessage());
         assertNull(body.getDetails());
     }
+
+    @Test
+    @DisplayName("IllegalArgumentException returns 422 Unprocessable Entity with EMPTY_ORDER")
+    void handleIllegalArgument_returns422WithErrorCode() {
+        IllegalArgumentException ex = new IllegalArgumentException("EMPTY_ORDER");
+
+        ResponseEntity<ErrorResponse> response = handler.handleIllegalArgument(ex);
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
+        ErrorResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("EMPTY_ORDER", body.getError());
+        assertEquals("EMPTY_ORDER", body.getMessage());
+        assertNull(body.getDetails());
+    }
 }
