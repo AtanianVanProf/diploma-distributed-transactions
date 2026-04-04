@@ -32,6 +32,7 @@ export class OrderForm implements OnInit {
   private readonly api = inject(ApiService);
 
   /** Output events for parent component */
+  beforeSubmit = output<CreateOrderRequest>();
   orderPlaced = output<OrderResponse>();
   orderFailed = output<ErrorResponse>();
 
@@ -134,6 +135,7 @@ export class OrderForm implements OnInit {
     };
 
     this.submitting.set(true);
+    this.beforeSubmit.emit(request);
 
     this.api.placeOrder(request).subscribe({
       next: (response) => {
@@ -143,7 +145,9 @@ export class OrderForm implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
-        const errorResponse: ErrorResponse = err.error;
+        const errorResponse: ErrorResponse = err.error?.error
+          ? err.error
+          : { error: 'UNKNOWN', message: err.message || 'An unexpected error occurred' };
         this.orderFailed.emit(errorResponse);
       }
     });
