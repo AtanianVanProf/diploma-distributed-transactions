@@ -1,0 +1,110 @@
+@if (isVisible()) {
+  <div class="transaction-result" [class.success]="result() === 'success'" [class.error]="result() === 'error'">
+
+    <!-- Header -->
+    <div class="result-header">
+      @if (result() === 'success') {
+        <span class="result-icon">&#10003;</span>
+        <h3>Order #{{ orderResponse()?.orderId }} created successfully</h3>
+      } @else {
+        <span class="result-icon">&#10007;</span>
+        <h3>Order failed — transaction rolled back</h3>
+      }
+    </div>
+
+    <!-- Success: order details summary -->
+    @if (result() === 'success' && orderResponse(); as order) {
+      <div class="order-summary">
+        <div class="summary-item">
+          <span class="summary-label">Total Amount</span>
+          <span class="summary-value">{{ order.totalAmount | currency:'USD':'symbol':'1.2-2' }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Items</span>
+          <span class="summary-value">{{ order.items.length }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Status</span>
+          <span class="summary-value status-badge">{{ order.status }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Error: message and code -->
+    @if (result() === 'error' && errorResponse(); as err) {
+      <div class="error-details">
+        <div class="error-code">{{ err.error }}</div>
+        <div class="error-message">{{ err.message }}</div>
+      </div>
+    }
+
+    <!-- Before / After comparison -->
+    @if (beforeState() && afterState()) {
+      <div class="comparison-section">
+        <h4>Before / After Comparison</h4>
+
+        @if (result() === 'error') {
+          <p class="rollback-note">Values are identical — ACID rollback preserved data integrity</p>
+        }
+
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Before</th>
+              <th>After</th>
+              <th>Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Customer balance row -->
+            <tr>
+              <td class="field-name">
+                {{ beforeState()!.customer.name }} — Balance
+              </td>
+              <td class="value-cell">
+                {{ beforeState()!.customer.balance | currency:'USD':'symbol':'1.2-2' }}
+              </td>
+              <td class="value-cell">
+                {{ afterState()!.customer.balance | currency:'USD':'symbol':'1.2-2' }}
+              </td>
+              <td class="change-cell">
+                @if (hasBalanceChanged()) {
+                  <span class="change-indicator decreased">
+                    {{ balanceDiff() | currency:'USD':'symbol':'1.2-2' }}
+                  </span>
+                } @else {
+                  <span class="change-indicator unchanged">No change</span>
+                }
+              </td>
+            </tr>
+
+            <!-- Product stock rows -->
+            @for (productId of getComparisonProductIds(); track productId) {
+              <tr>
+                <td class="field-name">
+                  {{ getProductBefore(productId)?.name ?? 'Product #' + productId }} — Stock
+                </td>
+                <td class="value-cell">
+                  {{ getProductBefore(productId)?.stock ?? '—' }}
+                </td>
+                <td class="value-cell">
+                  {{ getProductAfter(productId)?.stock ?? '—' }}
+                </td>
+                <td class="change-cell">
+                  @if (hasStockChanged(productId)) {
+                    <span class="change-indicator decreased">
+                      {{ stockDiff(productId) > 0 ? '+' : '' }}{{ stockDiff(productId) }}
+                    </span>
+                  } @else {
+                    <span class="change-indicator unchanged">No change</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}
