@@ -54,10 +54,7 @@
             </column>
         </createTable>
 
-        <addCheckConstraint
-                tableName="order_item"
-                constraintName="chk_order_item_quantity_positive"
-                constraintBody="quantity > 0"/>
+        <sql>ALTER TABLE order_item ADD CONSTRAINT chk_order_item_quantity_positive CHECK (quantity > 0);</sql>
 
         <createIndex tableName="order_item" indexName="idx_order_item_order_id">
             <column name="order_id"/>
