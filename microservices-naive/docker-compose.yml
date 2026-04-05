@@ -94,6 +94,17 @@ services:
       payment-service:
         condition: service_started
 
+  # ==================== Frontend ====================
+  naive-frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "4201:80"
+    depends_on:
+      - order-service
+      - inventory-service
+      - payment-service
+
 volumes:
   order-db-data:
   inventory-db-data:
