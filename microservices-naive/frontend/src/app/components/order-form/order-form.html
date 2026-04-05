@@ -1,0 +1,98 @@
+<div class="order-form">
+  <h2>Place Order</h2>
+
+  <!-- Scenario quick-fill buttons -->
+  <div class="scenario-buttons">
+    @for (scenario of scenarios; track scenario.label) {
+      <button
+        class="scenario-btn"
+        (click)="applyScenario(scenario)"
+        [disabled]="submitting() || loading()"
+        type="button">
+        {{ scenario.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="loading-text">Loading data...</p>
+  } @else {
+    <form (submit)="$event.preventDefault(); placeOrder()">
+      <!-- Customer selection -->
+      <div class="form-group">
+        <label for="customer-select">Customer</label>
+        <select
+          id="customer-select"
+          [value]="selectedCustomerId() ?? ''"
+          (change)="onCustomerChange($event)"
+          [disabled]="submitting()">
+          <option value="" disabled>Select a customer...</option>
+          @for (customer of customers(); track customer.id) {
+            <option [value]="customer.id">{{ customer.name }} ({{ customer.email }})</option>
+          }
+        </select>
+      </div>
+
+      <!-- Order items -->
+      <div class="items-section">
+        <div class="items-header">
+          <label>Order Items</label>
+          <button
+            type="button"
+            class="add-item-btn"
+            (click)="addItem()"
+            [disabled]="submitting()">
+            + Add Item
+          </button>
+        </div>
+
+        @for (item of items(); track $index; let i = $index) {
+          <div class="item-row">
+            <select
+              class="product-select"
+              [value]="item.productId ?? ''"
+              (change)="onProductChange(i, $event)"
+              [disabled]="submitting()">
+              <option value="" disabled>Select product...</option>
+              @for (product of products(); track product.id) {
+                <option [value]="product.id">{{ product.name }} — ${{ product.price }}</option>
+              }
+            </select>
+
+            <input
+              type="number"
+              class="quantity-input"
+              [value]="item.quantity"
+              (input)="onQuantityChange(i, $event)"
+              min="1"
+              placeholder="Qty"
+              [disabled]="submitting()"/>
+
+            @if (items().length > 1) {
+              <button
+                type="button"
+                class="remove-item-btn"
+                (click)="removeItem(i)"
+                [disabled]="submitting()"
+                title="Remove item">
+                &times;
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        class="submit-btn"
+        [disabled]="submitting() || isFormInvalid()">
+        @if (submitting()) {
+          Placing Order...
+        } @else {
+          Place Order
+        }
+      </button>
+    </form>
+  }
+</div>
