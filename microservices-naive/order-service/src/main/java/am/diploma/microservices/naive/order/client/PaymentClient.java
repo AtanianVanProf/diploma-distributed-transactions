@@ -5,7 +5,6 @@ import am.diploma.microservices.naive.order.dto.ChargeResponse;
 import am.diploma.microservices.naive.order.dto.ErrorResponse;
 import am.diploma.microservices.naive.order.exception.ServiceCallException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -17,13 +16,16 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 @Component
-@RequiredArgsConstructor
 public class PaymentClient {
 
-    @Qualifier("paymentRestClient")
     private final RestClient paymentRestClient;
-
     private final ObjectMapper objectMapper;
+
+    public PaymentClient(@Qualifier("paymentRestClient") RestClient paymentRestClient,
+                         ObjectMapper objectMapper) {
+        this.paymentRestClient = paymentRestClient;
+        this.objectMapper = objectMapper;
+    }
 
     public ChargeResponse charge(Long customerId, BigDecimal amount) {
         ChargeRequest request = new ChargeRequest(customerId, amount);

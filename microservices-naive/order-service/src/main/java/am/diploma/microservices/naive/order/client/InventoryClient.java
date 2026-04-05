@@ -7,7 +7,6 @@ import am.diploma.microservices.naive.order.dto.ReserveStockResponse;
 import am.diploma.microservices.naive.order.dto.StockItemRequest;
 import am.diploma.microservices.naive.order.exception.ServiceCallException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -19,13 +18,16 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class InventoryClient {
 
-    @Qualifier("inventoryRestClient")
     private final RestClient inventoryRestClient;
-
     private final ObjectMapper objectMapper;
+
+    public InventoryClient(@Qualifier("inventoryRestClient") RestClient inventoryRestClient,
+                           ObjectMapper objectMapper) {
+        this.inventoryRestClient = inventoryRestClient;
+        this.objectMapper = objectMapper;
+    }
 
     public ReserveStockResponse reserveStock(List<OrderItemRequest> items) {
         List<StockItemRequest> stockItems = items.stream()
