@@ -75,6 +75,18 @@ export class App implements OnInit {
 
   /** Handles a successful order placement */
   onOrderPlaced(response: OrderResponse): void {
+    // Order service returns 200 even for FAILED orders (it catches the exception
+    // and saves a FAILED order). Check the status and route to error flow if needed.
+    if (response.status === 'FAILED') {
+      const errorResponse: ErrorResponse = {
+        error: 'ORDER_FAILED',
+        message: response.failureReason ?? 'Order failed'
+      };
+      this.orderResponse.set(response);
+      this.handleOrderFailure(errorResponse);
+      return;
+    }
+
     const beforeSnapshot: SnapshotState = {
       customers: [...this.cachedCustomers()],
       products: [...this.cachedProducts()]
@@ -99,8 +111,14 @@ export class App implements OnInit {
     });
   }
 
-  /** Handles a failed order placement */
+  /** Handles a failed order placement (HTTP error from order service) */
   onOrderFailed(error: ErrorResponse): void {
+    this.orderResponse.set(undefined);
+    this.handleOrderFailure(error);
+  }
+
+  /** Shared error handling for both HTTP errors and 200-with-FAILED-status responses */
+  private handleOrderFailure(error: ErrorResponse): void {
     const beforeSnapshot: SnapshotState = {
       customers: [...this.cachedCustomers()],
       products: [...this.cachedProducts()]
@@ -115,7 +133,6 @@ export class App implements OnInit {
       this.afterState.set({ customers, products });
       this.resultType.set('error');
       this.errorResponse.set(error);
-      this.orderResponse.set(undefined);
 
       // Detect inconsistencies: data changed despite order failure
       this.detectInconsistency(beforeSnapshot, customers, products);
