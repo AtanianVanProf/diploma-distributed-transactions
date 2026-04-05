@@ -1,0 +1,24 @@
+@if (visible()) {
+  <div class="alert">
+    <div class="alert__header">
+      <span class="alert__icon">&#9888;</span>
+      <h3 class="alert__title">Data Inconsistency Detected</h3>
+    </div>
+
+    <p class="alert__message">
+      <strong>{{ totalLeakedUnits() }}</strong> units of stock have been permanently lost
+      across <strong>{{ records().length }}</strong> failed order attempt{{ records().length > 1 ? 's' : '' }}.
+      No compensation mechanism exists.
+    </p>
+
+    <ul class="alert__list">
+      @for (item of affectedItems(); track item.field) {
+        <li class="alert__list-item">
+          <span class="alert__field">{{ item.field }}</span>
+          <span class="alert__service">({{ item.service }})</span>
+          <span class="alert__diff">&mdash; {{ item.totalDiff }} units affected</span>
+        </li>
+      }
+    </ul>
+  </div>
+}
