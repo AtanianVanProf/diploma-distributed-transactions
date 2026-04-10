@@ -1,0 +1,28 @@
+<div class="panel payment-panel">
+  <div class="panel-header payment-header">
+    <h2>Payment Service</h2>
+    <span class="db-badge">payment_db</span>
+  </div>
+
+  @if (loading() && customers().length === 0) {
+    <p class="loading-text">Loading customers...</p>
+  }
+
+  <div class="customer-list">
+    @for (customer of customers(); track customer.id) {
+      <div class="customer-card" [class.changed]="changedIds().has(customer.id)">
+        <div class="customer-info">
+          <span class="customer-name">{{ customer.name }}</span>
+          <span class="customer-email">{{ customer.email }}</span>
+        </div>
+        <div class="customer-balance">
+          {{ customer.balance | currency:'USD':'symbol':'1.2-2' }}
+        </div>
+      </div>
+    } @empty {
+      @if (!loading()) {
+        <p class="empty-text">No customers found.</p>
+      }
+    }
+  </div>
+</div>
