@@ -1,0 +1,133 @@
+services:
+  # ==================== Databases ====================
+  order-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: order
+      POSTGRES_PASSWORD: order
+    ports:
+      - "5451:5432"
+    volumes:
+      - order-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U order -d order_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  inventory-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+    ports:
+      - "5452:5432"
+    volumes:
+      - inventory-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  payment-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: payment_db
+      POSTGRES_USER: payment
+      POSTGRES_PASSWORD: payment
+    ports:
+      - "5453:5432"
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payment -d payment_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  saga-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: saga_db
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5454:5432"
+    volumes:
+      - saga-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saga -d saga_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ==================== Services ====================
+  order-service:
+    build:
+      context: ./order-service
+    ports:
+      - "8091:8091"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_db
+      SPRING_DATASOURCE_USERNAME: order
+      SPRING_DATASOURCE_PASSWORD: order
+    depends_on:
+      order-db:
+        condition: service_healthy
+
+  inventory-service:
+    build:
+      context: ./inventory-service
+    ports:
+      - "8092:8092"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://inventory-db:5432/inventory_db
+      SPRING_DATASOURCE_USERNAME: inventory
+      SPRING_DATASOURCE_PASSWORD: inventory
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+
+  payment-service:
+    build:
+      context: ./payment-service
+    ports:
+      - "8093:8093"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-db:5432/payment_db
+      SPRING_DATASOURCE_USERNAME: payment
+      SPRING_DATASOURCE_PASSWORD: payment
+    depends_on:
+      payment-db:
+        condition: service_healthy
+
+  orchestrator-service:
+    build:
+      context: ./orchestrator-service
+    ports:
+      - "8094:8094"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://saga-db:5432/saga_db
+      SPRING_DATASOURCE_USERNAME: saga
+      SPRING_DATASOURCE_PASSWORD: saga
+      INVENTORY_SERVICE_URL: http://inventory-service:8092
+      PAYMENT_SERVICE_URL: http://payment-service:8093
+      ORDER_SERVICE_URL: http://order-service:8091
+    depends_on:
+      saga-db:
+        condition: service_healthy
+      order-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+
+volumes:
+  order-db-data:
+  inventory-db-data:
+  payment-db-data:
+  saga-db-data:
