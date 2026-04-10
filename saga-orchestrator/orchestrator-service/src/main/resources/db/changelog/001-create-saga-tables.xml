@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-saga-execution-table" author="vatanyan">
+        <createTable tableName="saga_execution">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="BIGINT"/>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_payload" type="TEXT"/>
+            <column name="failure_reason" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-saga-step-table" author="vatanyan">
+        <createTable tableName="saga_step">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="saga_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_saga_step_saga_execution"
+                             references="saga_execution(id)"/>
+            </column>
+            <column name="step_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step_order" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_data" type="TEXT"/>
+            <column name="response_data" type="TEXT"/>
+            <column name="compensation_data" type="TEXT"/>
+            <column name="completed_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createIndex tableName="saga_step" indexName="idx_saga_step_saga_id">
+            <column name="saga_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
