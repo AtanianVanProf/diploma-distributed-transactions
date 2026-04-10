@@ -1,0 +1,152 @@
+@if (isVisible()) {
+  <div class="transaction-result"
+       [class.success]="result() === 'success'"
+       [class.error-compensated]="result() === 'error' && isCompensated()"
+       [class.error-no-compensation]="result() === 'error' && isFailedNoCompensation()"
+       [class.error-generic]="result() === 'error' && !isCompensated() && !isFailedNoCompensation()">
+
+    <!-- Header -->
+    <div class="result-header">
+      @if (result() === 'success') {
+        <span class="result-icon success-icon">&#10003;</span>
+        <h3>Order #{{ orderResponse()?.orderId }} created successfully</h3>
+      } @else if (isCompensated()) {
+        <span class="result-icon compensated-icon">&#10003;</span>
+        <h3>Order failed — Compensation Executed Successfully</h3>
+      } @else if (isFailedNoCompensation()) {
+        <span class="result-icon no-comp-icon">&#8212;</span>
+        <h3>Order failed — No Compensation Needed</h3>
+      } @else {
+        <span class="result-icon error-icon">&#10007;</span>
+        <h3>Order failed</h3>
+      }
+    </div>
+
+    <!-- Success: order details summary -->
+    @if (result() === 'success' && orderResponse(); as order) {
+      <div class="order-summary">
+        <div class="summary-item">
+          <span class="summary-label">Total Amount</span>
+          <span class="summary-value">{{ order.totalAmount | currency:'USD':'symbol':'1.2-2' }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Items</span>
+          <span class="summary-value">{{ order.items.length }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Status</span>
+          <span class="summary-value status-completed">{{ order.status }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Error: failure reason from order response or error response -->
+    @if (result() === 'error') {
+      @if (orderResponse()?.failureReason) {
+        <div class="error-details">
+          <div class="error-code">{{ orderResponse()?.failureReason }}</div>
+        </div>
+      } @else if (errorResponse()) {
+        <div class="error-details">
+          <div class="error-code">{{ errorResponse()?.error }}</div>
+          <div class="error-message">{{ errorResponse()?.message }}</div>
+        </div>
+      }
+    }
+
+    <!-- COMPENSATION FEEDBACK (saga-orchestrator specific) -->
+    @if (result() === 'error' && isCompensated()) {
+      <div class="compensation-success">
+        <div class="compensation-header">
+          <span class="comp-icon">&#10003;</span>
+          <strong>COMPENSATION EXECUTED SUCCESSFULLY</strong>
+        </div>
+        <p class="compensation-description">
+          The SAGA orchestrator detected the failure and automatically triggered compensating
+          transactions in reverse order. All committed changes have been rolled back.
+        </p>
+        <p class="compensation-contrast">
+          In Project 2 (microservices-naive), this same scenario would have caused a
+          <strong>permanent data inconsistency</strong> — stock would have been leaked with no recovery.
+        </p>
+      </div>
+    }
+
+    @if (result() === 'error' && isFailedNoCompensation()) {
+      <div class="no-compensation-info">
+        No compensation needed — failure occurred before any service committed data.
+      </div>
+    }
+
+    <!-- Before / After comparison -->
+    @if (beforeState() && afterState()) {
+      <div class="comparison-section">
+        <h4>Before / After Comparison</h4>
+
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Before</th>
+              <th>After</th>
+              <th>Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Customer balance row -->
+            @if (getCustomerBefore(); as customerBefore) {
+              <tr [class.restored-row]="result() === 'error' && !hasBalanceChanged()">
+                <td class="field-name">
+                  {{ customerBefore.name }} — Balance
+                </td>
+                <td class="value-cell">
+                  {{ customerBefore.balance | currency:'USD':'symbol':'1.2-2' }}
+                </td>
+                <td class="value-cell">
+                  {{ getCustomerAfter()?.balance | currency:'USD':'symbol':'1.2-2' }}
+                </td>
+                <td class="change-cell">
+                  @if (hasBalanceChanged()) {
+                    <span class="change-indicator decreased">
+                      {{ balanceDiff() | currency:'USD':'symbol':'1.2-2' }}
+                    </span>
+                  } @else {
+                    <span class="change-indicator unchanged">No change</span>
+                  }
+                </td>
+              </tr>
+            }
+
+            <!-- Product stock rows -->
+            @for (productId of getComparisonProductIds(); track productId) {
+              <tr [class.restored-row]="result() === 'error' && isCompensated() && !hasStockChanged(productId)">
+                <td class="field-name">
+                  {{ getProductBefore(productId)?.name ?? 'Product #' + productId }} — Stock
+                </td>
+                <td class="value-cell">
+                  {{ getProductBefore(productId)?.stock ?? '—' }}
+                </td>
+                <td class="value-cell">
+                  {{ getProductAfter(productId)?.stock ?? '—' }}
+                </td>
+                <td class="change-cell">
+                  @if (hasStockChanged(productId)) {
+                    <span class="change-indicator decreased">
+                      {{ stockDiff(productId) > 0 ? '+' : '' }}{{ stockDiff(productId) }}
+                    </span>
+                  } @else {
+                    @if (result() === 'error' && isCompensated()) {
+                      <span class="change-indicator restored">Restored</span>
+                    } @else {
+                      <span class="change-indicator unchanged">No change</span>
+                    }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}
