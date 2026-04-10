@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="seed-customers" author="vatanyan">
+        <insert tableName="customer">
+            <column name="id" valueNumeric="1"/>
+            <column name="name" value="Alice Johnson"/>
+            <column name="email" value="alice@example.com"/>
+            <column name="balance" valueNumeric="10000.00"/>
+        </insert>
+        <insert tableName="customer">
+            <column name="id" valueNumeric="2"/>
+            <column name="name" value="Bob Smith"/>
+            <column name="email" value="bob@example.com"/>
+            <column name="balance" valueNumeric="50.00"/>
+        </insert>
+        <sql>ALTER SEQUENCE customer_id_seq RESTART WITH 3;</sql>
+        <rollback>
+            <delete tableName="customer"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
