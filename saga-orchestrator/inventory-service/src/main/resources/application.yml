@@ -1,0 +1,19 @@
+server:
+  port: 8092
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5452/inventory_db
+    username: inventory
+    password: inventory
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml

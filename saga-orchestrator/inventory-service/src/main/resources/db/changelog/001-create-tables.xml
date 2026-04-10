@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-product-table" author="vatanyan">
+        <createTable tableName="product">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sku" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_product_sku"/>
+            </column>
+            <column name="price" type="NUMERIC(12,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stock" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>ALTER TABLE product ADD CONSTRAINT chk_product_price CHECK (price > 0);
+ALTER TABLE product ADD CONSTRAINT chk_product_stock CHECK (stock >= 0);</sql>
+    </changeSet>
+
+</databaseChangeLog>
