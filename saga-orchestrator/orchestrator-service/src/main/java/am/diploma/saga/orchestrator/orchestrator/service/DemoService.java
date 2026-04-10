@@ -3,6 +3,7 @@ package am.diploma.saga.orchestrator.orchestrator.service;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
@@ -30,8 +31,12 @@ public class DemoService {
      * Resets all data across all services: truncates local saga tables
      * and fans out reset calls to order, inventory, and payment services.
      */
+    @Transactional
     public void resetAllData() {
-        resetLocalData();
+        entityManager.createNativeQuery("TRUNCATE TABLE saga_step CASCADE").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE saga_execution CASCADE").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE saga_execution_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE saga_step_id_seq RESTART WITH 1").executeUpdate();
 
         resetService(orderRestClient, "order");
         resetService(inventoryRestClient, "inventory");
@@ -40,23 +45,13 @@ public class DemoService {
         log.info("All databases reset to initial state");
     }
 
-    /**
-     * Truncates local saga tables and resets sequences.
-     */
-    @Transactional
-    public void resetLocalData() {
-        entityManager.createNativeQuery("TRUNCATE TABLE saga_step CASCADE").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE saga_execution CASCADE").executeUpdate();
-        entityManager.createNativeQuery("ALTER SEQUENCE saga_execution_id_seq RESTART WITH 1").executeUpdate();
-        entityManager.createNativeQuery("ALTER SEQUENCE saga_step_id_seq RESTART WITH 1").executeUpdate();
-    }
-
     private void resetService(RestClient restClient, String serviceName) {
         try {
             restClient.post()
                     .uri("/api/demo/reset")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(String.class);
+                    .toBodilessEntity();
             log.info("{} service reset successfully", serviceName);
         } catch (Exception e) {
             log.error("Failed to reset {} service: {}", serviceName, e.getMessage());
