@@ -1,0 +1,31 @@
+<div class="panel inventory-panel">
+  <div class="panel-header inventory-header">
+    <h2>Inventory Service</h2>
+    <span class="db-badge">inventory_db</span>
+  </div>
+
+  @if (loading() && products().length === 0) {
+    <p class="loading-text">Loading products...</p>
+  }
+
+  <div class="product-list">
+    @for (product of products(); track product.id) {
+      <div class="product-card" [class.changed]="changedIds().has(product.id)">
+        <div class="product-info">
+          <span class="product-name">{{ product.name }}</span>
+          <span class="product-sku">{{ product.sku }}</span>
+        </div>
+        <div class="product-meta">
+          <span class="product-price">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+          <span class="product-stock" [ngClass]="stockClass(product.stock)">
+            Stock: {{ product.stock }}
+          </span>
+        </div>
+      </div>
+    } @empty {
+      @if (!loading()) {
+        <p class="empty-text">No products found.</p>
+      }
+    }
+  </div>
+</div>
