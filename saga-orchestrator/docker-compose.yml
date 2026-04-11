@@ -126,6 +126,18 @@ services:
       payment-service:
         condition: service_started
 
+  # ==================== Frontend ====================
+  saga-frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "4202:80"
+    depends_on:
+      - orchestrator-service
+      - order-service
+      - inventory-service
+      - payment-service
+
 volumes:
   order-db-data:
   inventory-db-data:
