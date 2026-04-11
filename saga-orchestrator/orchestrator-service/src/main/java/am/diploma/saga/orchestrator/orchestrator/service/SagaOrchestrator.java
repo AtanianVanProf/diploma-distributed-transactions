@@ -61,7 +61,7 @@ public class SagaOrchestrator {
 
         log.info("Saga {} started for customer {}", saga.getId(), request.getCustomerId());
 
-        // 2. Step 1: Reserve stock
+        // 2. Create all steps upfront as PENDING
         SagaStep reserveStep = SagaStep.builder()
                 .sagaExecution(saga)
                 .stepName("RESERVE_STOCK")
@@ -71,6 +71,24 @@ public class SagaOrchestrator {
                 .build();
         reserveStep = sagaStepRepository.save(reserveStep);
         saga.getSteps().add(reserveStep);
+
+        SagaStep chargeStep = SagaStep.builder()
+                .sagaExecution(saga)
+                .stepName("CHARGE_PAYMENT")
+                .stepOrder(2)
+                .status(StepStatus.PENDING)
+                .build();
+        chargeStep = sagaStepRepository.save(chargeStep);
+        saga.getSteps().add(chargeStep);
+
+        SagaStep orderStep = SagaStep.builder()
+                .sagaExecution(saga)
+                .stepName("CREATE_ORDER")
+                .stepOrder(3)
+                .status(StepStatus.PENDING)
+                .build();
+        orderStep = sagaStepRepository.save(orderStep);
+        saga.getSteps().add(orderStep);
 
         ReserveStockResponse reserveStockResponse;
         try {
@@ -116,16 +134,9 @@ public class SagaOrchestrator {
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getReservedQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        SagaStep chargeStep = SagaStep.builder()
-                .sagaExecution(saga)
-                .stepName("CHARGE_PAYMENT")
-                .stepOrder(2)
-                .status(StepStatus.PENDING)
-                .requestData(toJson(new ChargeRequest(
-                        request.getCustomerId(), totalAmount)))
-                .build();
-        chargeStep = sagaStepRepository.save(chargeStep);
-        saga.getSteps().add(chargeStep);
+        chargeStep.setRequestData(toJson(new ChargeRequest(
+                request.getCustomerId(), totalAmount)));
+        sagaStepRepository.save(chargeStep);
 
         ChargeResponse chargeResponse;
         try {
@@ -163,15 +174,6 @@ public class SagaOrchestrator {
         log.info("Step CHARGE_PAYMENT completed successfully");
 
         // 4. Step 3: Create order
-        SagaStep orderStep = SagaStep.builder()
-                .sagaExecution(saga)
-                .stepName("CREATE_ORDER")
-                .stepOrder(3)
-                .status(StepStatus.PENDING)
-                .build();
-        orderStep = sagaStepRepository.save(orderStep);
-        saga.getSteps().add(orderStep);
-
         List<CreateOrderItemRequest> orderItems = reserveStockResponse.getItems().stream()
                 .map(item -> CreateOrderItemRequest.builder()
                         .productId(item.getProductId())
