@@ -341,7 +341,9 @@ public class SagaOrchestrator {
         List<CreateOrderItemRequest> orderItems = items.stream()
                 .map(item -> CreateOrderItemRequest.builder()
                         .productId(item.getProductId())
+                        .productName("Product #" + item.getProductId())
                         .quantity(item.getQuantity())
+                        .price(BigDecimal.ZERO)
                         .build())
                 .toList();
 
