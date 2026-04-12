@@ -73,7 +73,7 @@ export class AppComponent implements OnInit {
       sagas: this.orchestratorApi.getSagaExecutions()
     }).subscribe(({ customers, products, sagas }) => {
       this.afterState.set({ customers, products });
-      this.sagaExecution.set(sagas.length > 0 ? sagas[sagas.length - 1] : undefined);
+      this.sagaExecution.set(this.findMatchingSaga(sagas, response.orderId));
       this.resultType.set('success');
       this.orderResponse.set(response);
       this.errorResponse.set(undefined);
@@ -90,7 +90,7 @@ export class AppComponent implements OnInit {
       sagas: this.orchestratorApi.getSagaExecutions()
     }).subscribe(({ customers, products, sagas }) => {
       this.afterState.set({ customers, products });
-      this.sagaExecution.set(sagas.length > 0 ? sagas[sagas.length - 1] : undefined);
+      this.sagaExecution.set(this.findMatchingSaga(sagas, event.order?.orderId));
       this.resultType.set('error');
       this.orderResponse.set(event.order);
       this.errorResponse.set(event.error);
@@ -98,6 +98,15 @@ export class AppComponent implements OnInit {
       this.refreshAllPanels();
       this.refreshCache();
     });
+  }
+
+  private findMatchingSaga(sagas: SagaExecutionResponse[], orderId?: number): SagaExecutionResponse | undefined {
+    if (sagas.length === 0) return undefined;
+    if (orderId) {
+      const match = sagas.find(s => s.orderId === orderId);
+      if (match) return match;
+    }
+    return sagas[sagas.length - 1];
   }
 
   onResetDatabase(): void {
