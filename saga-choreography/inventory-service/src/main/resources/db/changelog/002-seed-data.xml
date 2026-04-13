@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="seed-products" author="vatanyan">
+        <insert tableName="product">
+            <column name="id" valueNumeric="1"/>
+            <column name="name" value="Laptop Pro 15"/>
+            <column name="sku" value="LAP-PRO-15"/>
+            <column name="price" valueNumeric="1299.99"/>
+            <column name="stock" valueNumeric="10"/>
+        </insert>
+        <insert tableName="product">
+            <column name="id" valueNumeric="2"/>
+            <column name="name" value="Wireless Mouse"/>
+            <column name="sku" value="WRL-MOUSE"/>
+            <column name="price" valueNumeric="29.99"/>
+            <column name="stock" valueNumeric="3"/>
+        </insert>
+        <insert tableName="product">
+            <column name="id" valueNumeric="3"/>
+            <column name="name" value="USB-C Hub"/>
+            <column name="sku" value="USB-C-HUB"/>
+            <column name="price" valueNumeric="49.99"/>
+            <column name="stock" valueNumeric="1"/>
+        </insert>
+        <insert tableName="product">
+            <column name="id" valueNumeric="4"/>
+            <column name="name" value="Mechanical Keyboard"/>
+            <column name="sku" value="MECH-KB"/>
+            <column name="price" valueNumeric="89.99"/>
+            <column name="stock" valueNumeric="0"/>
+        </insert>
+        <sql>ALTER SEQUENCE product_id_seq RESTART WITH 5;</sql>
+        <rollback>
+            <delete tableName="product"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
