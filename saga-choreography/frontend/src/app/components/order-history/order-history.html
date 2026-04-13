@@ -1,0 +1,53 @@
+<div class="panel order-history-panel">
+  <div class="panel-header">
+    <h2>Order History</h2>
+  </div>
+
+  @if (loading() && orders().length === 0) {
+    <p class="loading-text">Loading orders...</p>
+  }
+
+  @if (orders().length > 0) {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th class="numeric">Total Amount</th>
+            <th>Saga Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order.orderId) {
+            <tr>
+              <td class="numeric">{{ order.orderId }}</td>
+              <td class="numeric">{{ order.customerId }}</td>
+              <td>
+                <span class="status-badge"
+                      [class.status-pending]="order.status === 'PENDING'"
+                      [class.status-completed]="order.status === 'COMPLETED'"
+                      [class.status-failed]="order.status === 'FAILED'">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td class="numeric">{{ order.totalAmount !== null ? (order.totalAmount | currency:'USD':'symbol':'1.2-2') : '—' }}</td>
+              <td>
+                <span class="status-badge" [class]="sagaStatusClass(order.orderId)">
+                  {{ getSagaStatus(order.orderId) }}
+                </span>
+              </td>
+              <td>{{ order.createdAt | date:'medium' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    @if (!loading()) {
+      <p class="empty-text">No orders yet.</p>
+    }
+  }
+</div>
