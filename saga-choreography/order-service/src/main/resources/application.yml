@@ -1,0 +1,27 @@
+server:
+  port: 8101
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5461/order_db
+    username: order
+    password: order
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+services:
+  inventory:
+    url: ${INVENTORY_SERVICE_URL:http://localhost:8102}
+  payment:
+    url: ${PAYMENT_SERVICE_URL:http://localhost:8103}
