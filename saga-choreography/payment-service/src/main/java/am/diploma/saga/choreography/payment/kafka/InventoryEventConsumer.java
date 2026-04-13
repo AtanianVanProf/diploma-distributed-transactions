@@ -1,7 +1,10 @@
 package am.diploma.saga.choreography.payment.kafka;
 
+import am.diploma.saga.choreography.payment.event.OrderCompletedEvent;
+import am.diploma.saga.choreography.payment.event.OrderFailedEvent;
 import am.diploma.saga.choreography.payment.event.PaymentChargedEvent;
 import am.diploma.saga.choreography.payment.event.PaymentFailedEvent;
+import am.diploma.saga.choreography.payment.event.StockReservationFailedEvent;
 import am.diploma.saga.choreography.payment.event.StockReservedEvent;
 import am.diploma.saga.choreography.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +51,21 @@ public class InventoryEventConsumer {
 
             eventProducer.publishPaymentFailed(failedEvent);
         }
+    }
+
+    @KafkaHandler
+    public void handleStockReservationFailed(StockReservationFailedEvent event) {
+        log.debug("Ignoring STOCK_RESERVATION_FAILED for sagaId={} (not relevant to payment)", event.getSagaId());
+    }
+
+    @KafkaHandler
+    public void handleOrderCompleted(OrderCompletedEvent event) {
+        log.debug("Ignoring ORDER_COMPLETED for sagaId={} (not relevant to payment)", event.getSagaId());
+    }
+
+    @KafkaHandler
+    public void handleOrderFailed(OrderFailedEvent event) {
+        log.debug("Ignoring ORDER_FAILED for sagaId={} (not relevant to payment)", event.getSagaId());
     }
 
     @KafkaHandler(isDefault = true)
