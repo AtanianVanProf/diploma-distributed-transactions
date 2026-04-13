@@ -134,6 +134,17 @@ services:
       kafka:
         condition: service_healthy
 
+  # ==================== Frontend ====================
+  choreography-frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "4203:80"
+    depends_on:
+      - order-service
+      - inventory-service
+      - payment-service
+
 volumes:
   order-db-data:
   inventory-db-data:
