@@ -2,7 +2,9 @@ package am.diploma.saga.choreography.order.service;
 
 import am.diploma.saga.choreography.order.dto.*;
 import am.diploma.saga.choreography.order.entity.*;
+import am.diploma.saga.choreography.order.event.OrderPlacedEvent;
 import am.diploma.saga.choreography.order.exception.NotFoundException;
+import am.diploma.saga.choreography.order.kafka.OrderEventProducer;
 import am.diploma.saga.choreography.order.repository.OrderRepository;
 import am.diploma.saga.choreography.order.repository.SagaExecutionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +26,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final SagaExecutionRepository sagaExecutionRepository;
     private final ObjectMapper objectMapper;
+    private final OrderEventProducer orderEventProducer;
 
     @Transactional
     public PlaceOrderResponse placeOrder(PlaceOrderRequest request) {
@@ -82,6 +85,20 @@ public class OrderService {
         SagaExecution savedSaga = sagaExecutionRepository.save(saga);
 
         log.info("Order {} created with saga {}", savedOrder.getId(), savedSaga.getId());
+
+        OrderPlacedEvent event = OrderPlacedEvent.builder()
+                .sagaId(savedSaga.getId())
+                .orderId(savedOrder.getId())
+                .customerId(savedOrder.getCustomerId())
+                .items(request.getItems().stream()
+                        .map(item -> OrderPlacedEvent.OrderItem.builder()
+                                .productId(item.getProductId())
+                                .quantity(item.getQuantity())
+                                .build())
+                        .toList())
+                .build();
+
+        orderEventProducer.publishOrderPlaced(event);
 
         return PlaceOrderResponse.builder()
                 .orderId(savedOrder.getId())
