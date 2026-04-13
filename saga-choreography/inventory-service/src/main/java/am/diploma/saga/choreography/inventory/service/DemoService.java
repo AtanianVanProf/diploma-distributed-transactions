@@ -1,5 +1,6 @@
 package am.diploma.saga.choreography.inventory.service;
 
+import am.diploma.saga.choreography.inventory.kafka.ReservationDataStore;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class DemoService {
 
     private final EntityManager entityManager;
+    private final ReservationDataStore reservationDataStore;
 
     @Transactional
     public void resetData() {
+        reservationDataStore.clear();
         entityManager.createNativeQuery("TRUNCATE TABLE product CASCADE").executeUpdate();
 
         entityManager.createNativeQuery(
