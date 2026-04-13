@@ -26,6 +26,7 @@ public class DemoService {
         this.paymentRestClient = paymentRestClient;
     }
 
+    @Transactional
     public void resetAllData() {
         resetLocalData();
 
