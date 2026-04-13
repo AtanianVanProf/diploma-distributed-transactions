@@ -1,0 +1,214 @@
+.panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fafafa;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+}
+
+.saga-header h2 {
+  color: #d97706;
+}
+
+.db-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: #fffbeb;
+  color: #d97706;
+  font-family: monospace;
+}
+
+.loading-text,
+.empty-text {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.execution-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.execution-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.execution-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+}
+
+.execution-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.execution-id {
+  font-weight: 600;
+  color: #1a1a2e;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-link {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+
+.execution-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.execution-date {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.expand-icon {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.execution-details {
+  padding: 0 16px 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.failure-reason {
+  font-size: 0.85rem;
+  color: #dc2626;
+  padding: 8px 12px;
+  margin: 12px 0;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border-left: 3px solid #dc2626;
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.step-order {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.step-name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1a1a2e;
+  text-transform: capitalize;
+}
+
+// Saga status badges
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.saga-completed {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.saga-compensated {
+  background-color: #fffbeb;
+  color: #d97706;
+}
+
+.saga-failed {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.saga-compensating {
+  background-color: #fff7ed;
+  color: #ea580c;
+}
+
+.saga-started {
+  background-color: #f0f9ff;
+  color: #0284c7;
+}
+
+// Step status badges
+.step-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+}
+
+.step-completed {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.step-compensated {
+  background-color: #fffbeb;
+  color: #d97706;
+}
+
+.step-failed {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.step-pending {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}

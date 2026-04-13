@@ -1,0 +1,56 @@
+<div class="panel saga-panel">
+  <div class="panel-header saga-header">
+    <h2>Saga Executions</h2>
+    <span class="db-badge">order_db</span>
+  </div>
+
+  @if (loading() && executions().length === 0) {
+    <p class="loading-text">Loading saga executions...</p>
+  }
+
+  <div class="execution-list">
+    @for (execution of executions(); track execution.id) {
+      <div class="execution-card">
+        <div class="execution-summary" (click)="toggleExpand(execution.id)">
+          <div class="execution-info">
+            <span class="execution-id">Saga #{{ execution.id }}</span>
+            <span class="status-badge" [class]="sagaStatusClass(execution.status)">
+              {{ execution.status }}
+            </span>
+            @if (execution.orderId) {
+              <span class="order-link">Order #{{ execution.orderId }}</span>
+            }
+          </div>
+          <div class="execution-meta">
+            <span class="execution-date">{{ execution.createdAt | date:'medium' }}</span>
+            <span class="expand-icon">{{ expandedIds().has(execution.id) ? '&#9650;' : '&#9660;' }}</span>
+          </div>
+        </div>
+
+        @if (expandedIds().has(execution.id)) {
+          <div class="execution-details">
+            @if (execution.failureReason) {
+              <div class="failure-reason">{{ execution.failureReason }}</div>
+            }
+
+            <div class="steps-list">
+              @for (step of execution.steps; track step.id) {
+                <div class="step-row">
+                  <span class="step-order">{{ step.stepOrder }}</span>
+                  <span class="step-name">{{ formatStepName(step.stepName) }}</span>
+                  <span class="status-badge step-badge" [class]="stepStatusClass(step.status)">
+                    {{ step.status }}
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @empty {
+      @if (!loading()) {
+        <p class="empty-text">No saga executions yet.</p>
+      }
+    }
+  </div>
+</div>
