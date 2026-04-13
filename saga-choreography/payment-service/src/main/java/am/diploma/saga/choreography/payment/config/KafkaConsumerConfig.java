@@ -29,7 +29,10 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "am.diploma.saga.choreography.*");
         props.put(JsonDeserializer.TYPE_MAPPINGS,
-                "stockReserved:am.diploma.saga.choreography.payment.event.StockReservedEvent");
+                "stockReserved:am.diploma.saga.choreography.payment.event.StockReservedEvent," +
+                "stockReservationFailed:am.diploma.saga.choreography.payment.event.StockReservationFailedEvent," +
+                "orderCompleted:am.diploma.saga.choreography.payment.event.OrderCompletedEvent," +
+                "orderFailed:am.diploma.saga.choreography.payment.event.OrderFailedEvent");
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
