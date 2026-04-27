@@ -39,18 +39,15 @@ export class TransactionResult {
     return this.result() !== null;
   }
 
-  /** Returns product IDs to compare in the before/after table */
   protected getComparisonProductIds(): number[] {
     if (this.result() === 'success') {
       const response = this.orderResponse();
       return response ? response.items.map(item => item.productId) : [];
     }
-    // On failure: show all products so we can detect which ones changed
     const before = this.beforeState();
     return before ? before.products.map(p => p.id) : [];
   }
 
-  /** Get the customer relevant to this order */
   protected getCustomerBefore(): Customer | undefined {
     const order = this.orderResponse();
     const before = this.beforeState();
@@ -58,7 +55,6 @@ export class TransactionResult {
     if (order) {
       return before.customers.find(c => c.id === order.customerId);
     }
-    // For failed orders, try to find from error context or return first customer
     return before.customers.find(c => c.id === this.getOrderCustomerId()) ?? before.customers[0];
   }
 
@@ -72,7 +68,6 @@ export class TransactionResult {
     return after.customers.find(c => c.id === this.getOrderCustomerId()) ?? after.customers[0];
   }
 
-  /** Try to determine the customer ID from whatever data we have */
   private getOrderCustomerId(): number | undefined {
     return this.orderResponse()?.customerId;
   }
@@ -109,22 +104,18 @@ export class TransactionResult {
     return after - before;
   }
 
-  /** KEY THESIS FEATURE: detect if any data changed despite order failure */
   protected hasInconsistency(): boolean {
     if (this.result() !== 'error') return false;
 
-    // Check if any stock changed
     for (const productId of this.getComparisonProductIds()) {
       if (this.hasStockChanged(productId)) return true;
     }
 
-    // Check if balance changed
     if (this.hasBalanceChanged()) return true;
 
     return false;
   }
 
-  /** Get list of inconsistent changes for display */
   protected getInconsistencies(): { field: string; before: string; after: string; service: string }[] {
     const inconsistencies: { field: string; before: string; after: string; service: string }[] = [];
 

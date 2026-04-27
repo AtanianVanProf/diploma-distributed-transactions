@@ -1,7 +1,6 @@
 @if (isVisible()) {
   <div class="transaction-result" [class.success]="result() === 'success'" [class.error]="result() === 'error'">
 
-    <!-- Header -->
     <div class="result-header">
       @if (result() === 'success') {
         <span class="result-icon">&#10003;</span>
@@ -12,7 +11,6 @@
       }
     </div>
 
-    <!-- Success: order details summary -->
     @if (result() === 'success' && orderResponse(); as order) {
       <div class="order-summary">
         <div class="summary-item">
@@ -30,7 +28,6 @@
       </div>
     }
 
-    <!-- Error: message and code -->
     @if (result() === 'error' && errorResponse(); as err) {
       <div class="error-details">
         <div class="error-code">{{ err.error }}</div>
@@ -38,7 +35,6 @@
       </div>
     }
 
-    <!-- Before / After comparison -->
     @if (beforeState() && afterState()) {
       <div class="comparison-section">
         <h4>Before / After Comparison</h4>
@@ -57,7 +53,6 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Customer balance row -->
             <tr>
               <td class="field-name">
                 {{ beforeState()!.customer.name }} — Balance
@@ -79,7 +74,6 @@
               </td>
             </tr>
 
-            <!-- Product stock rows -->
             @for (productId of getComparisonProductIds(); track productId) {
               <tr>
                 <td class="field-name">

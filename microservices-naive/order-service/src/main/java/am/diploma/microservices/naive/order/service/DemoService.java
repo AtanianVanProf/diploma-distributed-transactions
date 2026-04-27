@@ -26,12 +26,10 @@ public class DemoService {
 
     @Transactional
     public void resetData() {
-        // 1. Reset local order_db
         entityManager.createNativeQuery("TRUNCATE TABLE order_item, orders CASCADE").executeUpdate();
         entityManager.createNativeQuery("ALTER SEQUENCE orders_id_seq RESTART WITH 1").executeUpdate();
         entityManager.createNativeQuery("ALTER SEQUENCE order_item_id_seq RESTART WITH 1").executeUpdate();
 
-        // 2. Fan out reset to inventory and payment services
         inventoryRestClient.post()
                 .uri("/api/demo/reset")
                 .contentType(MediaType.APPLICATION_JSON)

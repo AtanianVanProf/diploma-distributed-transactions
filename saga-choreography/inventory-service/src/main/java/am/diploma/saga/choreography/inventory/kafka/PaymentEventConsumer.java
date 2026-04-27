@@ -63,7 +63,6 @@ public class PaymentEventConsumer {
         ReservationDataStore.ReservationData reservationData = reservationDataStore.retrieve(event.getSagaId());
 
         if (reservationData != null) {
-            // Compensation: release reserved stock
             List<InventoryService.StockItemData> stockItems = reservationData.items().stream()
                     .map(item -> new InventoryService.StockItemData(item.getProductId(), item.getQuantity()))
                     .toList();

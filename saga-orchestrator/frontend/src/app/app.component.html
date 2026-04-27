@@ -13,19 +13,16 @@
 </header>
 
 <main class="dashboard">
-  <!-- Row 1: 3-column service panels -->
   <section class="dashboard__row dashboard__row--panels">
     <app-inventory-panel />
     <app-payment-panel />
     <app-order-panel />
   </section>
 
-  <!-- Row 2: Saga Execution Panel -->
   <section class="dashboard__row">
     <app-saga-execution-panel />
   </section>
 
-  <!-- Row 3: Order Form -->
   <section class="dashboard__row">
     <app-order-form
       (beforeSubmit)="onBeforeSubmit($event)"
@@ -33,7 +30,6 @@
       (orderFailed)="onOrderFailed($event)" />
   </section>
 
-  <!-- Row 4: Transaction Result -->
   <section class="dashboard__row">
     <app-transaction-result
       [result]="resultType()"

@@ -17,7 +17,6 @@ export class InconsistencyAlert {
 
   protected visible = computed(() => this.records().length > 0);
 
-  /** Total number of stock units leaked across all records */
   protected totalLeakedUnits = computed(() => {
     let total = 0;
     for (const record of this.records()) {
@@ -34,7 +33,6 @@ export class InconsistencyAlert {
     return total;
   });
 
-  /** Distinct affected product/field entries with their cumulative changes */
   protected affectedItems = computed(() => {
     const map = new Map<string, { field: string; totalDiff: number; service: string }>();
 

@@ -47,12 +47,7 @@ public class SagaOrchestrator {
     private final OrderClient orderClient;
     private final ObjectMapper objectMapper;
 
-    /**
-     * Executes the 3-step order saga: reserve stock -> charge payment -> create order.
-     * On failure, compensating transactions are triggered for any completed steps.
-     */
     public OrderResponse executeSaga(PlaceOrderRequest request) {
-        // 1. Create saga execution record
         SagaExecution saga = SagaExecution.builder()
                 .status(SagaStatus.STARTED)
                 .requestPayload(toJson(request))
@@ -61,7 +56,6 @@ public class SagaOrchestrator {
 
         log.info("Saga {} started for customer {}", saga.getId(), request.getCustomerId());
 
-        // 2. Create all steps upfront as PENDING
         SagaStep reserveStep = SagaStep.builder()
                 .sagaExecution(saga)
                 .stepName("RESERVE_STOCK")
@@ -129,7 +123,6 @@ public class SagaOrchestrator {
 
         log.info("Step RESERVE_STOCK completed successfully");
 
-        // 3. Step 2: Charge payment
         BigDecimal totalAmount = reserveStockResponse.getItems().stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getReservedQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -173,7 +166,6 @@ public class SagaOrchestrator {
 
         log.info("Step CHARGE_PAYMENT completed successfully");
 
-        // 4. Step 3: Create order
         List<CreateOrderItemRequest> orderItems = reserveStockResponse.getItems().stream()
                 .map(item -> CreateOrderItemRequest.builder()
                         .productId(item.getProductId())
@@ -233,9 +225,6 @@ public class SagaOrchestrator {
         return orderResponse;
     }
 
-    /**
-     * Compensates all completed steps in reverse order.
-     */
     private void compensate(SagaExecution saga) {
         saga.setStatus(SagaStatus.COMPENSATING);
         sagaExecutionRepository.save(saga);
@@ -273,9 +262,6 @@ public class SagaOrchestrator {
         log.info("Saga {} fully compensated", saga.getId());
     }
 
-    /**
-     * Dispatches compensation to the appropriate service based on step name.
-     */
     private void executeCompensation(SagaStep step) throws JsonProcessingException {
         switch (step.getStepName()) {
             case "RESERVE_STOCK" -> {
@@ -295,9 +281,6 @@ public class SagaOrchestrator {
         }
     }
 
-    /**
-     * Returns all saga executions with their steps for the monitoring UI.
-     */
     @Transactional(readOnly = true)
     public List<SagaExecutionResponse> getAllSagaExecutions() {
         return sagaExecutionRepository.findAllWithSteps().stream()
@@ -332,10 +315,6 @@ public class SagaOrchestrator {
                 .build();
     }
 
-    /**
-     * Builds a FAILED order via the order service when a saga step fails.
-     * Uses PlaceOrderRequest items (before stock reservation is available).
-     */
     private OrderResponse buildFailedOrder(Long customerId, String failureReason,
                                            List<OrderItemRequest> items) {
         List<CreateOrderItemRequest> orderItems = items.stream()
@@ -358,10 +337,6 @@ public class SagaOrchestrator {
         return orderClient.createOrder(createOrderRequest);
     }
 
-    /**
-     * Builds a FAILED order via the order service when a saga step fails.
-     * Uses ReserveStockResponse items (when stock reservation data is available).
-     */
     private OrderResponse buildFailedOrder(Long customerId, String failureReason,
                                            ReserveStockResponse reserveStockResponse) {
         List<CreateOrderItemRequest> orderItems = reserveStockResponse.getItems().stream()
@@ -388,9 +363,6 @@ public class SagaOrchestrator {
         return orderClient.createOrder(createOrderRequest);
     }
 
-    /**
-     * Serializes an object to JSON string.
-     */
     private String toJson(Object obj) {
         try {
             return objectMapper.writeValueAsString(obj);

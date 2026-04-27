@@ -1,7 +1,6 @@
 <div class="order-form">
   <h2>Place Order</h2>
 
-  <!-- Scenario quick-fill buttons -->
   <div class="scenario-buttons">
     @for (scenario of scenarios; track scenario.label) {
       <button
@@ -18,7 +17,6 @@
     <p class="loading-text">Loading data...</p>
   } @else {
     <form (submit)="$event.preventDefault(); placeOrder()">
-      <!-- Customer selection -->
       <div class="form-group">
         <label for="customer-select">Customer</label>
         <select
@@ -33,7 +31,6 @@
         </select>
       </div>
 
-      <!-- Order items -->
       <div class="items-section">
         <div class="items-header">
           <label>Order Items</label>
@@ -82,7 +79,6 @@
         }
       </div>
 
-      <!-- Submit -->
       <button
         type="submit"
         class="submit-btn"

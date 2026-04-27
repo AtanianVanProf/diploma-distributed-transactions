@@ -17,17 +17,14 @@ export class CustomerPanel implements OnInit {
   protected readonly customers = signal<Customer[]>([]);
   protected readonly loading = signal(false);
 
-  /** Tracks previous balances to detect changes after refresh */
   private previousBalances = new Map<number, number>();
 
-  /** Set of customer IDs whose balance just decreased */
   protected readonly changedIds = signal<Set<number>>(new Set());
 
   ngOnInit(): void {
     this.fetchCustomers(false);
   }
 
-  /** Re-fetches customer data. Called by parent after order placement. */
   refresh(): void {
     this.fetchCustomers(true);
   }
@@ -47,13 +44,11 @@ export class CustomerPanel implements OnInit {
           }
           this.changedIds.set(changed);
 
-          // Remove highlight after animation completes
           if (changed.size > 0) {
             setTimeout(() => this.changedIds.set(new Set()), 1500);
           }
         }
 
-        // Store current balances for next comparison
         this.previousBalances = new Map(
           customers.map(c => [c.id, c.balance])
         );

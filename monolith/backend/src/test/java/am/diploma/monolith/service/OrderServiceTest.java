@@ -180,7 +180,6 @@ class OrderServiceTest {
 
         OrderResponse response = orderService.placeOrder(request);
 
-        // 1299.99 * 2 + 29.99 * 3 = 2599.98 + 89.97 = 2689.95
         assertEquals(new BigDecimal("2689.95"), response.getTotalAmount());
         assertEquals(2, response.getItems().size());
     }
@@ -207,8 +206,6 @@ class OrderServiceTest {
 
         assertEquals("COMPLETED", response.getStatus());
     }
-
-    // --- getAllOrders / getOrderById tests ---
 
     private Order buildOrderWithItems(Long orderId, Customer customer, Product product, int quantity) {
         Order order = Order.builder()

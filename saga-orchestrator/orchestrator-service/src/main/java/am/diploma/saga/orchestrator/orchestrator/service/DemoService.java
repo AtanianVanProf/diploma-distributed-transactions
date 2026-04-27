@@ -27,10 +27,6 @@ public class DemoService {
         this.orderRestClient = orderRestClient;
     }
 
-    /**
-     * Resets all data across all services: truncates local saga tables
-     * and fans out reset calls to order, inventory, and payment services.
-     */
     @Transactional
     public void resetAllData() {
         entityManager.createNativeQuery("TRUNCATE TABLE saga_step CASCADE").executeUpdate();

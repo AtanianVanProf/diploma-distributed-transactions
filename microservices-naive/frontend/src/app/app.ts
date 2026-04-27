@@ -27,37 +27,30 @@ export class App implements OnInit {
   private readonly paymentApi = inject(PaymentApiService);
   private readonly orderApi = inject(OrderApiService);
 
-  /** Child component references */
   inventoryPanel = viewChild.required(InventoryPanel);
   paymentPanel = viewChild.required(PaymentPanel);
   orderPanel = viewChild.required(OrderPanel);
   transactionResult = viewChild.required(TransactionResult);
 
-  /** Cached data used for "before" snapshots */
   private cachedCustomers = signal<Customer[]>([]);
   private cachedProducts = signal<Product[]>([]);
 
-  /** Transaction result state */
   protected resultType = signal<'success' | 'error' | null>(null);
   protected orderResponse = signal<OrderResponse | undefined>(undefined);
   protected errorResponse = signal<ErrorResponse | undefined>(undefined);
   protected beforeState = signal<SnapshotState | null>(null);
   protected afterState = signal<SnapshotState | null>(null);
 
-  /** Cumulative inconsistency tracking across failed orders */
   protected inconsistencyRecords = signal<InconsistencyRecord[]>([]);
 
-  /** Tracks the customerId from the most recent form submission */
   private pendingCustomerId = signal<number | null>(null);
 
-  /** Whether the DB reset is in progress */
   protected resetting = signal(false);
 
   ngOnInit(): void {
     this.refreshCache();
   }
 
-  /** Fetches all customers and products into the local cache */
   private refreshCache(): void {
     forkJoin({
       customers: this.paymentApi.getCustomers(),
@@ -68,15 +61,11 @@ export class App implements OnInit {
     });
   }
 
-  /** Captures the customerId before the API call fires */
   onBeforeSubmit(request: CreateOrderRequest): void {
     this.pendingCustomerId.set(request.customerId);
   }
 
-  /** Handles a successful order placement */
   onOrderPlaced(response: OrderResponse): void {
-    // Order service returns 200 even for FAILED orders (it catches the exception
-    // and saves a FAILED order). Check the status and route to error flow if needed.
     if (response.status === 'FAILED') {
       const errorResponse: ErrorResponse = {
         error: 'ORDER_FAILED',
@@ -93,7 +82,6 @@ export class App implements OnInit {
     };
     this.beforeState.set(beforeSnapshot);
 
-    // Fetch fresh data for the "after" snapshot, then refresh all panels
     forkJoin({
       customers: this.paymentApi.getCustomers(),
       products: this.inventoryApi.getProducts()
@@ -111,13 +99,11 @@ export class App implements OnInit {
     });
   }
 
-  /** Handles a failed order placement (HTTP error from order service) */
   onOrderFailed(error: ErrorResponse): void {
     this.orderResponse.set(undefined);
     this.handleOrderFailure(error);
   }
 
-  /** Shared error handling for both HTTP errors and 200-with-FAILED-status responses */
   private handleOrderFailure(error: ErrorResponse): void {
     const beforeSnapshot: SnapshotState = {
       customers: [...this.cachedCustomers()],
@@ -125,7 +111,6 @@ export class App implements OnInit {
     };
     this.beforeState.set(beforeSnapshot);
 
-    // Fetch fresh data — on failure nothing *should* have changed, but we verify
     forkJoin({
       customers: this.paymentApi.getCustomers(),
       products: this.inventoryApi.getProducts()
@@ -134,7 +119,6 @@ export class App implements OnInit {
       this.resultType.set('error');
       this.errorResponse.set(error);
 
-      // Detect inconsistencies: data changed despite order failure
       this.detectInconsistency(beforeSnapshot, customers, products);
 
       this.inventoryPanel().refresh();
@@ -145,7 +129,6 @@ export class App implements OnInit {
     });
   }
 
-  /** Compares before/after state to find data that changed despite order failure */
   private detectInconsistency(beforeSnapshot: SnapshotState, freshCustomers: Customer[], freshProducts: Product[]): void {
     const changedItems: { field: string; before: string; after: string; service: string }[] = [];
 
@@ -161,7 +144,6 @@ export class App implements OnInit {
       }
     }
 
-    // Check customer balance for the customer involved in the failed order
     const customerId = this.pendingCustomerId();
     if (customerId) {
       const beforeCustomer = beforeSnapshot.customers.find(c => c.id === customerId);
@@ -181,7 +163,6 @@ export class App implements OnInit {
     }
   }
 
-  /** Resets all databases and refreshes all panels */
   onResetDatabase(): void {
     this.resetting.set(true);
 

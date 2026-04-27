@@ -21,34 +21,28 @@ export class App implements OnInit {
 
   private readonly api = inject(ApiService);
 
-  /** Child component references */
   customerPanel = viewChild.required(CustomerPanel);
   productPanel = viewChild.required(ProductPanel);
   transactionResult = viewChild.required(TransactionResult);
   orderHistory = viewChild.required(OrderHistory);
 
-  /** Cached data used for "before" snapshots */
   private cachedCustomers = signal<Customer[]>([]);
   private cachedProducts = signal<Product[]>([]);
 
-  /** Transaction result state — all driven by signals for OnPush */
   protected resultType = signal<'success' | 'error' | null>(null);
   protected orderResponse = signal<OrderResponse | undefined>(undefined);
   protected errorResponse = signal<ErrorResponse | undefined>(undefined);
   protected beforeState = signal<SnapshotState | null>(null);
   protected afterState = signal<SnapshotState | null>(null);
 
-  /** Tracks the customerId from the most recent form submission */
   private pendingCustomerId = signal<number | null>(null);
 
-  /** Whether the DB reset is in progress */
   protected resetting = signal(false);
 
   ngOnInit(): void {
     this.refreshCache();
   }
 
-  /** Fetches all customers and products into the local cache */
   private refreshCache(): void {
     forkJoin({
       customers: this.api.getCustomers(),
@@ -59,12 +53,10 @@ export class App implements OnInit {
     });
   }
 
-  /** Captures the customerId before the API call fires */
   onBeforeSubmit(request: CreateOrderRequest): void {
     this.pendingCustomerId.set(request.customerId);
   }
 
-  /** Handles a successful order placement */
   onOrderPlaced(response: OrderResponse): void {
     const customerId = response.customerId;
     const beforeCustomer = this.cachedCustomers().find(c => c.id === customerId);
@@ -74,7 +66,6 @@ export class App implements OnInit {
       this.beforeState.set({ customer: { ...beforeCustomer }, products: beforeProducts });
     }
 
-    // Fetch fresh data for the "after" snapshot, then refresh all panels
     forkJoin({
       customer: this.api.getCustomerById(customerId),
       products: this.api.getProducts()
@@ -92,7 +83,6 @@ export class App implements OnInit {
     });
   }
 
-  /** Handles a failed order placement */
   onOrderFailed(error: ErrorResponse): void {
     const customerId = this.pendingCustomerId();
     const beforeCustomer = customerId
@@ -104,7 +94,6 @@ export class App implements OnInit {
       this.beforeState.set({ customer: { ...beforeCustomer }, products: beforeProducts });
     }
 
-    // Fetch fresh data — on failure nothing should have changed, but we verify
     const customerFetch = customerId
       ? this.api.getCustomerById(customerId)
       : undefined;
@@ -125,7 +114,6 @@ export class App implements OnInit {
         this.pendingCustomerId.set(null);
       });
     } else {
-      // No customer context — show error without before/after comparison
       this.resultType.set('error');
       this.errorResponse.set(error);
       this.orderResponse.set(undefined);
@@ -134,7 +122,6 @@ export class App implements OnInit {
     }
   }
 
-  /** Resets the database and refreshes all panels */
   onResetDatabase(): void {
     this.resetting.set(true);
 

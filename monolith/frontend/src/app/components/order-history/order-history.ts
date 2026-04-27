@@ -21,7 +21,6 @@ export class OrderHistory implements OnInit {
     this.fetchOrders();
   }
 
-  /** Re-fetches order data. Called by parent after order placement or DB reset. */
   refresh(): void {
     this.fetchOrders();
   }

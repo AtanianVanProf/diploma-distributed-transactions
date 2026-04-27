@@ -5,7 +5,6 @@
        [class.error-no-compensation]="result() === 'error' && isFailedNoCompensation()"
        [class.error-generic]="result() === 'error' && !isCompensated() && !isFailedNoCompensation()">
 
-    <!-- Header -->
     <div class="result-header">
       @if (result() === 'success') {
         <span class="result-icon success-icon">&#10003;</span>
@@ -22,7 +21,6 @@
       }
     </div>
 
-    <!-- Success: order details summary -->
     @if (result() === 'success' && orderResponse(); as order) {
       <div class="order-summary">
         <div class="summary-item">
@@ -40,7 +38,6 @@
       </div>
     }
 
-    <!-- Error: failure reason from order response or error response -->
     @if (result() === 'error') {
       @if (orderResponse()?.failureReason) {
         <div class="error-details">
@@ -54,7 +51,6 @@
       }
     }
 
-    <!-- COMPENSATION FEEDBACK (saga-orchestrator specific) -->
     @if (result() === 'error' && isCompensated()) {
       <div class="compensation-success">
         <div class="compensation-header">
@@ -78,7 +74,6 @@
       </div>
     }
 
-    <!-- Before / After comparison -->
     @if (beforeState() && afterState()) {
       <div class="comparison-section">
         <h4>Before / After Comparison</h4>
@@ -93,7 +88,6 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Customer balance row -->
             @if (getCustomerBefore(); as customerBefore) {
               <tr [class.restored-row]="result() === 'error' && !hasBalanceChanged()">
                 <td class="field-name">
@@ -117,7 +111,6 @@
               </tr>
             }
 
-            <!-- Product stock rows -->
             @for (productId of getComparisonProductIds(); track productId) {
               <tr [class.restored-row]="result() === 'error' && isCompensated() && !hasStockChanged(productId)">
                 <td class="field-name">
