@@ -32,30 +32,24 @@ public class OrderService {
 
     @Transactional
     public OrderResponse placeOrder(CreateOrderRequest request) {
-        // 1. Validate request
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw new ServiceCallException("ORDER", "EMPTY_ORDER", "Order must contain at least one item");
         }
 
-        // 2. Reserve stock — commits independently in inventory_db!
         ReserveStockResponse stockResponse = inventoryClient.reserveStock(request.getItems());
 
-        // 3. Calculate total from reserved items (using prices from inventory service)
         BigDecimal totalAmount = stockResponse.getItems().stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getReservedQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 4. Charge payment — commits independently in payment_db!
         try {
             paymentClient.charge(request.getCustomerId(), totalAmount);
         } catch (ServiceCallException ex) {
-            // THIS IS THE INCONSISTENCY — stock is already committed but payment failed!
             log.warn("Payment failed for order. Inventory was already committed. Stock for products {} has been permanently decremented. No compensation mechanism is available.",
                     stockResponse.getItems().stream()
                             .map(item -> item.getProductName() + " (qty: " + item.getReservedQuantity() + ")")
                             .toList());
 
-            // Save FAILED order
             Order failedOrder = Order.builder()
                     .customerId(request.getCustomerId())
                     .status(OrderStatus.FAILED)
@@ -63,7 +57,6 @@ public class OrderService {
                     .failureReason(ex.getErrorCode() + ": " + ex.getErrorMessage())
                     .build();
 
-            // Build items from stock response
             List<OrderItem> failedItems = buildOrderItems(stockResponse, failedOrder);
             failedOrder.getItems().addAll(failedItems);
 
@@ -71,7 +64,6 @@ public class OrderService {
             return toOrderResponse(savedFailedOrder);
         }
 
-        // 5. Full success — create COMPLETED order
         Order order = Order.builder()
                 .customerId(request.getCustomerId())
                 .status(OrderStatus.COMPLETED)

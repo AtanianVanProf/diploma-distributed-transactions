@@ -6,7 +6,6 @@
        [class.error-generic]="result() === 'error' && !isCompensated() && !isFailedNoCompensation()"
        [class.timeout]="result() === 'timeout'">
 
-    <!-- Header -->
     <div class="result-header">
       @if (result() === 'success') {
         <span class="result-icon success-icon">&#10003;</span>
@@ -26,7 +25,6 @@
       }
     </div>
 
-    <!-- Success: saga details -->
     @if (result() === 'success' && sagaExecution(); as saga) {
       <div class="order-summary">
         <div class="summary-item">
@@ -44,14 +42,12 @@
       </div>
     }
 
-    <!-- Timeout message -->
     @if (result() === 'timeout') {
       <div class="timeout-info">
         Saga did not complete within the timeout. Check backend logs.
       </div>
     }
 
-    <!-- Error: failure reason -->
     @if (result() === 'error') {
       @if (failureReason()) {
         <div class="error-details">
@@ -60,7 +56,6 @@
       }
     }
 
-    <!-- COMPENSATION FEEDBACK (choreography-specific) -->
     @if (result() === 'error' && isCompensated()) {
       <div class="compensation-success">
         <div class="compensation-header">
@@ -84,7 +79,6 @@
       </div>
     }
 
-    <!-- Before / After comparison -->
     @if (beforeState() && afterState()) {
       <div class="comparison-section">
         <h4>Before / After Comparison</h4>
@@ -99,7 +93,6 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Customer balance row -->
             @if (getCustomerBefore(); as customerBefore) {
               <tr [class.restored-row]="result() === 'error' && !hasBalanceChanged()">
                 <td class="field-name">
@@ -123,7 +116,6 @@
               </tr>
             }
 
-            <!-- Product stock rows -->
             @for (productId of getComparisonProductIds(); track productId) {
               <tr [class.restored-row]="result() === 'error' && isCompensated() && !hasStockChanged(productId)">
                 <td class="field-name">

@@ -1,5 +1,4 @@
 services:
-  # ==================== Databases ====================
   order-db:
     image: postgres:16-alpine
     environment:
@@ -64,7 +63,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ==================== Services ====================
   order-service:
     build:
       context: ./order-service
@@ -126,7 +124,6 @@ services:
       payment-service:
         condition: service_started
 
-  # ==================== Frontend ====================
   saga-frontend:
     build:
       context: ./frontend

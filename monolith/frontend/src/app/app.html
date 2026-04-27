@@ -13,13 +13,11 @@
 </header>
 
 <main class="dashboard">
-  <!-- Row 1: Customer Panel + Product Panel side by side -->
   <section class="dashboard__row dashboard__row--panels">
     <app-customer-panel />
     <app-product-panel />
   </section>
 
-  <!-- Row 2: Order Form (full width) -->
   <section class="dashboard__row">
     <app-order-form
       (beforeSubmit)="onBeforeSubmit($event)"
@@ -27,7 +25,6 @@
       (orderFailed)="onOrderFailed($event)" />
   </section>
 
-  <!-- Row 3: Transaction Result (full width, hidden until order placed) -->
   <section class="dashboard__row">
     <app-transaction-result
       [result]="resultType()"
@@ -37,7 +34,6 @@
       [afterState]="afterState()" />
   </section>
 
-  <!-- Row 4: Order History (full width) -->
   <section class="dashboard__row">
     <app-order-history />
   </section>

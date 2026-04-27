@@ -1,5 +1,4 @@
 services:
-  # ==================== Databases ====================
   order-db:
     image: postgres:16-alpine
     environment:
@@ -48,7 +47,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ==================== Kafka Infrastructure ====================
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
     environment:
@@ -83,7 +81,6 @@ services:
       timeout: 10s
       retries: 5
 
-  # ==================== Services ====================
   order-service:
     build:
       context: ./order-service
@@ -134,7 +131,6 @@ services:
       kafka:
         condition: service_healthy
 
-  # ==================== Frontend ====================
   choreography-frontend:
     build:
       context: ./frontend

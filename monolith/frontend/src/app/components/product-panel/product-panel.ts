@@ -17,17 +17,14 @@ export class ProductPanel implements OnInit {
   protected readonly products = signal<Product[]>([]);
   protected readonly loading = signal(false);
 
-  /** Tracks previous stock values to detect changes after refresh */
   private previousStocks = new Map<number, number>();
 
-  /** Set of product IDs whose stock just decreased */
   protected readonly changedIds = signal<Set<number>>(new Set());
 
   ngOnInit(): void {
     this.fetchProducts(false);
   }
 
-  /** Re-fetches product data. Called by parent after order placement. */
   refresh(): void {
     this.fetchProducts(true);
   }
@@ -53,13 +50,11 @@ export class ProductPanel implements OnInit {
           }
           this.changedIds.set(changed);
 
-          // Remove highlight after animation completes
           if (changed.size > 0) {
             setTimeout(() => this.changedIds.set(new Set()), 1500);
           }
         }
 
-        // Store current stocks for next comparison
         this.previousStocks = new Map(
           products.map(p => [p.id, p.stock])
         );

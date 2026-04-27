@@ -80,11 +80,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.currentOrderId.set(response.orderId);
     this.polling.set(true);
 
-    // Refresh order panel to show PENDING order
     this.orderPanel().refresh();
     this.orderHistory().refresh();
 
-    // Poll for saga terminal status, then fetch fresh state
     this.pollingSubscription = interval(500).pipe(
       switchMap(() => this.orderApi.getSagaExecution(response.sagaId).pipe(
         catchError(() => of(null))
@@ -115,7 +113,6 @@ export class AppComponent implements OnInit, OnDestroy {
         this.refreshCache();
       },
       error: () => {
-        // Timeout
         this.polling.set(false);
         this.resultType.set('timeout');
         this.refreshAllPanels();

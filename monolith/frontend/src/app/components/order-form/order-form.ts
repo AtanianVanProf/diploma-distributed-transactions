@@ -31,22 +31,18 @@ export class OrderForm implements OnInit {
 
   private readonly api = inject(ApiService);
 
-  /** Output events for parent component */
   beforeSubmit = output<CreateOrderRequest>();
   orderPlaced = output<OrderResponse>();
   orderFailed = output<ErrorResponse>();
 
-  /** Data from API */
   protected readonly customers = signal<Customer[]>([]);
   protected readonly products = signal<Product[]>([]);
   protected readonly loading = signal(false);
 
-  /** Form state */
   protected readonly selectedCustomerId = signal<number | null>(null);
   protected readonly items = signal<OrderItemRow[]>([{ productId: null, quantity: 1 }]);
   protected readonly submitting = signal(false);
 
-  /** Pre-configured scenarios for quick demo fills */
   protected readonly scenarios: Scenario[] = [
     {
       label: 'Happy Path',
@@ -89,10 +85,8 @@ export class OrderForm implements OnInit {
     });
   }
 
-  /** Apply a scenario — fills form fields without submitting */
   protected applyScenario(scenario: Scenario): void {
     this.selectedCustomerId.set(scenario.customerId);
-    // Deep-copy items so mutations don't affect the scenario definition
     this.items.set(scenario.items.map(item => ({ ...item })));
   }
 
@@ -153,7 +147,6 @@ export class OrderForm implements OnInit {
     });
   }
 
-  /** Whether the submit button should be disabled */
   protected isFormInvalid(): boolean {
     if (this.selectedCustomerId() === null) return true;
     const currentItems = this.items();
