@@ -1,0 +1,280 @@
+@use '../../../styles/variables' as *;
+
+.panel {
+  background: $bg-card;
+  border: 1px solid rgba($primary-light, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.panel-header {
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $primary-light;
+  }
+}
+
+.empty-text {
+  color: $text-secondary;
+  font-size: 0.9rem;
+  padding: 12px 0;
+}
+
+.execution-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.execution-card {
+  border: 1px solid rgba($primary-light, 0.15);
+  border-radius: 10px;
+  padding: 16px;
+  background: rgba($bg-dark, 0.5);
+}
+
+.execution-header {
+  margin-bottom: 14px;
+}
+
+.execution-id-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.execution-id {
+  font-family: monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.status-committed {
+  background-color: rgba($success, 0.15);
+  color: $success;
+}
+
+.status-rejected {
+  background-color: rgba($danger, 0.15);
+  color: $danger;
+}
+
+.status-in-progress {
+  background-color: rgba($primary-light, 0.15);
+  color: $primary-light;
+}
+
+.phase-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 16px;
+  padding: 12px 0;
+}
+
+.phase-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.phase-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba($text-secondary, 0.4);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.phase-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: $text-secondary;
+  white-space: nowrap;
+}
+
+.phase-connector {
+  width: 40px;
+  height: 2px;
+  background: rgba($text-secondary, 0.3);
+  margin: 0 4px;
+  margin-bottom: 20px;
+  transition: background 0.3s ease;
+}
+
+.phase-complete {
+  .phase-circle {
+    border-color: $success;
+    background: $success;
+    box-shadow: 0 0 8px rgba($success, 0.4);
+  }
+
+  .phase-label {
+    color: $success;
+  }
+
+  &.phase-connector {
+    background: $success;
+  }
+}
+
+.phase-failed {
+  .phase-circle {
+    border-color: $danger;
+    background: $danger;
+    box-shadow: 0 0 8px rgba($danger, 0.4);
+  }
+
+  .phase-label {
+    color: $danger;
+  }
+
+  &.phase-connector {
+    background: $danger;
+  }
+}
+
+.phase-active {
+  .phase-circle {
+    border-color: $primary;
+    background: $primary;
+    box-shadow: 0 0 12px rgba($primary, 0.6);
+    animation: pulse 1.5s infinite;
+  }
+
+  .phase-label {
+    color: $primary-light;
+    font-weight: 600;
+  }
+
+  &.phase-connector {
+    background: $primary;
+  }
+}
+
+.phase-pending {
+  .phase-circle {
+    border-color: rgba($text-secondary, 0.3);
+    background: transparent;
+  }
+
+  .phase-label {
+    color: rgba($text-secondary, 0.5);
+  }
+
+  &.phase-connector {
+    background: rgba($text-secondary, 0.2);
+  }
+}
+
+.phase-skipped {
+  .phase-circle {
+    border-color: rgba($text-secondary, 0.2);
+    background: rgba($text-secondary, 0.1);
+  }
+
+  .phase-label {
+    color: rgba($text-secondary, 0.4);
+    text-decoration: line-through;
+  }
+
+  &.phase-connector {
+    background: rgba($text-secondary, 0.15);
+  }
+}
+
+.execution-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  border-top: 1px solid rgba($primary-light, 0.1);
+  border-bottom: 1px solid rgba($primary-light, 0.1);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-primary;
+  font-variant-numeric: tabular-nums;
+}
+
+.compensations-stat {
+  .stat-label {
+    color: $success;
+  }
+}
+
+.compensations-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba($success, 0.15);
+  color: $success;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.checkmark {
+  font-size: 0.9rem;
+}
+
+.decision-reason {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.reject-reason {
+  background: rgba($danger, 0.1);
+  color: rgba($danger, 0.9);
+  border-left: 3px solid $danger;
+}
+
+.commit-reason {
+  background: rgba($success, 0.1);
+  color: $success;
+  border-left: 3px solid $success;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba($primary, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba($primary, 0.8);
+  }
+}

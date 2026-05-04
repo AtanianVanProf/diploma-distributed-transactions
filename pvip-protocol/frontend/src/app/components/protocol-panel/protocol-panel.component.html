@@ -1,0 +1,70 @@
+<div class="panel">
+  <div class="panel-header">
+    <h2>Protocol Executions (PVIP)</h2>
+  </div>
+
+  @if (executions().length === 0) {
+    <p class="empty-text">No protocol executions yet.</p>
+  } @else {
+    <div class="execution-list">
+      @for (execution of executions(); track execution.transactionId) {
+        <div class="execution-card">
+          <div class="execution-header">
+            <div class="execution-id-row">
+              <span class="execution-id">{{ truncateId(execution.transactionId) }}</span>
+              <span class="status-badge" [class]="getStatusClass(execution.status)">
+                {{ execution.status }}
+              </span>
+            </div>
+          </div>
+
+          <div class="phase-progress">
+            <div class="phase-step" [class]="getPhaseClass(execution, 'PRE_VALIDATION')">
+              <div class="phase-circle"></div>
+              <span class="phase-label">Pre-Validation</span>
+            </div>
+            <div class="phase-connector" [class]="getPhaseClass(execution, 'COLLECTING_INTENTS')"></div>
+            <div class="phase-step" [class]="getPhaseClass(execution, 'COLLECTING_INTENTS')">
+              <div class="phase-circle"></div>
+              <span class="phase-label">Collecting Intents</span>
+            </div>
+            <div class="phase-connector" [class]="getPhaseClass(execution, 'DECISION')"></div>
+            <div class="phase-step" [class]="getPhaseClass(execution, 'DECISION')">
+              <div class="phase-circle"></div>
+              <span class="phase-label">Decision</span>
+            </div>
+          </div>
+
+          <div class="execution-stats">
+            <div class="stat">
+              <span class="stat-label">Kafka Messages</span>
+              <span class="stat-value">{{ execution.kafkaMessagesSent }}</span>
+            </div>
+            <div class="stat compensations-stat">
+              <span class="stat-label">Compensations</span>
+              <span class="stat-value compensations-value">
+                <span class="checkmark">&#10003;</span> 0
+              </span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Duration</span>
+              <span class="stat-value">{{ getDuration(execution) }}</span>
+            </div>
+          </div>
+
+          @if (execution.decision === 'REJECT' && execution.decisionReason) {
+            <div class="decision-reason reject-reason">
+              {{ execution.decisionReason }}
+            </div>
+          }
+
+          @if (execution.decision === 'COMMIT') {
+            <div class="decision-reason commit-reason">
+              All participants committed
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

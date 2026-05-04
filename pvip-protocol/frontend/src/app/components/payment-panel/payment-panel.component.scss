@@ -1,0 +1,80 @@
+@use '../../../styles/variables' as *;
+
+.panel {
+  background: $bg-card;
+  border: 1px solid rgba($primary-light, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.panel-header {
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $primary-light;
+  }
+}
+
+.empty-text {
+  color: $text-secondary;
+  font-size: 0.9rem;
+  padding: 12px 0;
+}
+
+.customer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.customer-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px solid rgba($primary-light, 0.1);
+  border-radius: 8px;
+  background: rgba($bg-dark, 0.4);
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: rgba($primary-light, 0.3);
+  }
+}
+
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.customer-name {
+  font-weight: 500;
+  color: $text-primary;
+  font-size: 0.95rem;
+}
+
+.customer-email {
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.customer-balance {
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-high {
+  color: $success;
+}
+
+.balance-medium {
+  color: $warning;
+}
+
+.balance-low {
+  color: $danger;
+}

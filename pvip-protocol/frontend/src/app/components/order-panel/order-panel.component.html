@@ -1,0 +1,40 @@
+<div class="panel">
+  <div class="panel-header">
+    <h2>Orders</h2>
+  </div>
+
+  @if (orders().length === 0) {
+    <p class="empty-text">No orders yet.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Transaction</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order.id) {
+            <tr>
+              <td class="order-id">#{{ order.id }}</td>
+              <td class="transaction-id">{{ truncateId(order.transactionId) }}</td>
+              <td>{{ order.customerName }}</td>
+              <td>
+                <span class="status-badge" [class]="getStatusClass(order.status)">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td class="order-total">{{ order.totalAmount | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td class="order-date">{{ order.createdAt | date:'short' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

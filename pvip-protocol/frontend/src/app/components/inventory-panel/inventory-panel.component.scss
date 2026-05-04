@@ -1,0 +1,85 @@
+@use '../../../styles/variables' as *;
+
+.panel {
+  background: $bg-card;
+  border: 1px solid rgba($primary-light, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.panel-header {
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $primary-light;
+  }
+}
+
+.empty-text {
+  color: $text-secondary;
+  font-size: 0.9rem;
+  padding: 12px 0;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  border-bottom: 1px solid rgba($primary-light, 0.2);
+}
+
+th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $text-secondary;
+}
+
+td {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: $text-primary;
+  border-bottom: 1px solid rgba($primary-light, 0.08);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.product-name {
+  font-weight: 500;
+}
+
+.product-sku {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.product-price {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.stock-available {
+  color: $success;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stock-empty {
+  color: $danger;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

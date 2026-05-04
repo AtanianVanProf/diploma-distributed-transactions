@@ -1,0 +1,34 @@
+<div class="panel">
+  <div class="panel-header">
+    <h2>Inventory</h2>
+  </div>
+
+  @if (products().length === 0) {
+    <p class="empty-text">No products available.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products(); track product.id) {
+            <tr>
+              <td class="product-name">{{ product.name }}</td>
+              <td class="product-sku">{{ product.sku }}</td>
+              <td class="product-price">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td [class]="product.stock > 0 ? 'stock-available' : 'stock-empty'">
+                {{ product.stock }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
