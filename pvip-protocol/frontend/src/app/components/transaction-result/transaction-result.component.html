@@ -1,0 +1,47 @@
+@if (result()) {
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Transaction Result</h2>
+    </div>
+
+    <div class="outcome-row">
+      <span class="outcome-badge" [class]="getOutcomeClass()">
+        {{ getOutcomeText() }}
+      </span>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Phase</span>
+        <span class="info-value">{{ getPhaseText() }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Kafka Messages</span>
+        <span class="info-value">{{ result()!.response.kafkaMessages }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Compensations</span>
+        <span class="info-value compensations-value">
+          <span class="checkmark">&#10003;</span> 0
+        </span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Duration</span>
+        <span class="info-value">{{ getDuration() }}</span>
+      </div>
+    </div>
+
+    @if (getReason()) {
+      <div class="reason-row" [class.reason-rejected]="getOutcomeClass() === 'outcome-rejected'">
+        {{ getReason() }}
+      </div>
+    }
+
+    @if (getOutcomeClass() === 'outcome-pending') {
+      <div class="processing-indicator">
+        <span class="processing-spinner"></span>
+        <span>Waiting for protocol completion...</span>
+      </div>
+    }
+  </div>
+}

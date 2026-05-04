@@ -1,0 +1,52 @@
+@if (before() && after()) {
+  <div class="panel">
+    <div class="panel-header">
+      <h2>State Changes</h2>
+    </div>
+
+    @if (!hasChanges()) {
+      <div class="no-changes">
+        <span class="no-changes-icon">&#10003;</span>
+        No data changes — PVIP prevented unnecessary mutations
+      </div>
+    } @else {
+      <div class="changes-list">
+        <div class="changes-section">
+          <h3 class="section-title">Products (Stock)</h3>
+          @for (product of before()!.products; track product.id) {
+            @if (getStockChange(product.id); as change) {
+              @if (change.changed) {
+                <div class="change-row">
+                  <span class="change-name">{{ product.name }}</span>
+                  <span class="change-values">
+                    <span class="value-before">{{ change.before }}</span>
+                    <span class="arrow">&#8594;</span>
+                    <span class="value-after decreased">{{ change.after }}</span>
+                  </span>
+                </div>
+              }
+            }
+          }
+        </div>
+
+        <div class="changes-section">
+          <h3 class="section-title">Customers (Balance)</h3>
+          @for (customer of before()!.customers; track customer.id) {
+            @if (getBalanceChange(customer.id); as change) {
+              @if (change.changed) {
+                <div class="change-row">
+                  <span class="change-name">{{ customer.name }}</span>
+                  <span class="change-values">
+                    <span class="value-before">{{ change.before | currency:'USD':'symbol':'1.2-2' }}</span>
+                    <span class="arrow">&#8594;</span>
+                    <span class="value-after decreased">{{ change.after | currency:'USD':'symbol':'1.2-2' }}</span>
+                  </span>
+                </div>
+              }
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

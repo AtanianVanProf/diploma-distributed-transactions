@@ -1,0 +1,204 @@
+@use '../../../styles/variables' as *;
+
+.panel {
+  background: $bg-card;
+  border: 1px solid rgba($primary-light, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.panel-header {
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $primary-light;
+  }
+}
+
+.scenario-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.scenario-btn {
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.scenario-happy {
+  background: rgba($success, 0.2);
+  color: $success;
+}
+
+.scenario-stock {
+  background: rgba($danger, 0.2);
+  color: $danger;
+}
+
+.scenario-balance {
+  background: rgba($danger, 0.2);
+  color: $danger;
+}
+
+.scenario-timeout {
+  background: rgba($warning, 0.2);
+  color: $warning;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $text-secondary;
+  margin-bottom: 6px;
+}
+
+select,
+input[type='number'] {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: $text-primary;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-light;
+  }
+
+  option {
+    background: $bg-dark;
+    color: $text-primary;
+  }
+}
+
+.items-section {
+  margin-bottom: 20px;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 1fr 80px auto;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+
+  input[type='number'] {
+    width: 100%;
+  }
+}
+
+.btn-remove {
+  background: rgba($danger, 0.2);
+  color: $danger;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba($danger, 0.3);
+  }
+}
+
+.btn-add-item {
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: $text-secondary;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 4px;
+
+  &:hover {
+    border-color: $primary-light;
+    color: $primary-light;
+  }
+}
+
+.action-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-primary {
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) {
+    background: $primary-light;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-reset {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 10px 20px;
+  color: $text-secondary;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &:hover {
+    border-color: $danger;
+    color: $danger;
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
