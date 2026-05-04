@@ -2,9 +2,12 @@ package am.diploma.pvip.protocol.order.service;
 
 import am.diploma.pvip.protocol.order.dto.*;
 import am.diploma.pvip.protocol.order.entity.*;
+import am.diploma.pvip.protocol.order.event.IntentRequestEvent;
 import am.diploma.pvip.protocol.order.exception.NotFoundException;
+import am.diploma.pvip.protocol.order.kafka.IntentRequestProducer;
 import am.diploma.pvip.protocol.order.repository.OrderRepository;
 import am.diploma.pvip.protocol.order.repository.ProtocolExecutionRepository;
+import am.diploma.pvip.protocol.order.repository.TransactionIntentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,9 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProtocolExecutionRepository protocolExecutionRepository;
+    private final TransactionIntentRepository transactionIntentRepository;
     private final PreValidationService preValidationService;
+    private final IntentRequestProducer intentRequestProducer;
 
     @Transactional
     public PlaceOrderResponse placeOrder(PlaceOrderRequest request) {
@@ -78,15 +83,45 @@ public class OrderService {
         ProtocolExecution execution = ProtocolExecution.builder()
                 .transactionId(transactionId)
                 .orderId(order.getId())
-                .status(ProtocolStatus.PRE_VALIDATION)
-                .phase("PRE_VALIDATION")
+                .status(ProtocolStatus.COLLECTING_INTENTS)
+                .phase("COLLECTING_INTENTS")
                 .preValidationPassed(true)
+                .kafkaMessagesSent(2)
                 .build();
         protocolExecutionRepository.save(execution);
 
+        TransactionIntent inventoryIntent = TransactionIntent.builder()
+                .transactionId(transactionId)
+                .participantType("INVENTORY")
+                .status("PENDING")
+                .build();
+        transactionIntentRepository.save(inventoryIntent);
+
+        TransactionIntent paymentIntent = TransactionIntent.builder()
+                .transactionId(transactionId)
+                .participantType("PAYMENT")
+                .status("PENDING")
+                .build();
+        transactionIntentRepository.save(paymentIntent);
+
+        ValidatedItem firstItem = validation.items().getFirst();
+        intentRequestProducer.publishIntentRequest(IntentRequestEvent.builder()
+                .transactionId(transactionId)
+                .participantType("INVENTORY")
+                .productId(firstItem.productId())
+                .quantity(firstItem.quantity())
+                .build());
+
+        intentRequestProducer.publishIntentRequest(IntentRequestEvent.builder()
+                .transactionId(transactionId)
+                .participantType("PAYMENT")
+                .customerId(request.customerId())
+                .amount(validation.totalAmount())
+                .build());
+
         log.info("Order created: orderId={}, transactionId={}, status=PENDING", order.getId(), transactionId);
-        return new PlaceOrderResponse(order.getId(), transactionId, "PENDING", "PRE_VALIDATION",
-                0, 0, null, validation.totalAmount());
+        return new PlaceOrderResponse(order.getId(), transactionId, "PENDING", "COLLECTING_INTENTS",
+                2, 0, null, validation.totalAmount());
     }
 
     @Transactional(readOnly = true)
