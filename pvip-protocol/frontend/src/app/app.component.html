@@ -12,6 +12,7 @@
           [products]="products"
           [isProcessing]="isProcessing"
           (orderSubmit)="onOrderSubmit($event)"
+          (timeoutSubmit)="onTimeoutSubmit($event)"
           (resetRequested)="onReset()" />
       </div>
       <div class="result-column">

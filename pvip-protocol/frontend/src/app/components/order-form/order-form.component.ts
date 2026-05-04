@@ -22,6 +22,7 @@ export class OrderFormComponent {
   isProcessing = input<boolean>(false);
 
   orderSubmit = output<PlaceOrderRequest>();
+  timeoutSubmit = output<PlaceOrderRequest>();
   resetRequested = output<void>();
 
   selectedCustomerId: number | null = null;
@@ -60,8 +61,17 @@ export class OrderFormComponent {
       case 'timeout':
         this.selectedCustomerId = 1;
         this.items = [{ productId: 2, quantity: 1 }];
+        this.submitTimeout();
         break;
     }
+  }
+
+  private submitTimeout(): void {
+    if (!this.selectedCustomerId) return;
+    this.timeoutSubmit.emit({
+      customerId: this.selectedCustomerId,
+      items: this.items.map(i => ({ productId: i.productId!, quantity: i.quantity }))
+    });
   }
 
   reset(): void {

@@ -47,6 +47,7 @@ export class AppComponent implements OnInit {
   isProcessing = false;
   transactionResult: TransactionResult | null = null;
   beforeState: SnapshotState | null = null;
+  private isTimeoutScenario = false;
 
   ngOnInit(): void {
     this.loadData();
@@ -62,6 +63,7 @@ export class AppComponent implements OnInit {
   onOrderSubmit(request: PlaceOrderRequest): void {
     this.isProcessing = true;
     this.transactionResult = null;
+    this.isTimeoutScenario = false;
 
     this.beforeState = {
       products: this.products.map(p => ({ ...p })),
@@ -134,7 +136,35 @@ export class AppComponent implements OnInit {
         afterState
       };
       this.isProcessing = false;
+      if (this.isTimeoutScenario) {
+        this.inventoryApi.resumeKafka().subscribe();
+        this.isTimeoutScenario = false;
+      }
       this.loadData();
+    });
+  }
+
+  onTimeoutSubmit(request: PlaceOrderRequest): void {
+    this.isProcessing = true;
+    this.transactionResult = null;
+    this.isTimeoutScenario = true;
+
+    this.beforeState = {
+      products: this.products.map(p => ({ ...p })),
+      customers: this.customers.map(c => ({ ...c }))
+    };
+
+    this.inventoryApi.pauseKafka().subscribe(() => {
+      this.orderApi.placeOrder(request).subscribe({
+        next: (response: PlaceOrderResponse) => {
+          this.startPolling(response);
+        },
+        error: () => {
+          this.inventoryApi.resumeKafka().subscribe();
+          this.isTimeoutScenario = false;
+          this.isProcessing = false;
+        }
+      });
     });
   }
 

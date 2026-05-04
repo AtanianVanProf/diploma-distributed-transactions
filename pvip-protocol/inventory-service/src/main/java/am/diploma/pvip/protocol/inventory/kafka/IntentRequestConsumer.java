@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -20,10 +22,30 @@ public class IntentRequestConsumer {
     private final ProductService productService;
     private final IntentResponseProducer intentResponseProducer;
 
+    private final AtomicBoolean paused = new AtomicBoolean(false);
+
+    public void pause() {
+        paused.set(true);
+        log.info("Kafka consumer paused — intent requests will be silently dropped");
+    }
+
+    public void resume() {
+        paused.set(false);
+        log.info("Kafka consumer resumed");
+    }
+
+    public boolean isPaused() {
+        return paused.get();
+    }
+
     @KafkaListener(topics = "pvip.intent-requests", groupId = "inventory-service", containerFactory = "kafkaListenerContainerFactory")
     public void consume(IntentRequestEvent event) {
         if (!"INVENTORY".equals(event.getParticipantType())) {
-            log.debug("Ignoring intent request for participantType={}", event.getParticipantType());
+            return;
+        }
+
+        if (paused.get()) {
+            log.info("Consumer paused — dropping intent request for transaction={}", event.getTransactionId());
             return;
         }
 

@@ -16,4 +16,12 @@ export class InventoryApiService {
   getProduct(id: number): Observable<Product> {
     return this.http.get<Product>(`${this.baseUrl}/api/products/${id}`);
   }
+
+  pauseKafka(): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/demo/pause-kafka`, {});
+  }
+
+  resumeKafka(): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/demo/resume-kafka`, {});
+  }
 }
