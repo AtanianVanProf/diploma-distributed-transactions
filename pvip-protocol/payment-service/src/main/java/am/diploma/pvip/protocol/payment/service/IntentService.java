@@ -1,16 +1,17 @@
-package am.diploma.pvip.protocol.inventory.service;
+package am.diploma.pvip.protocol.payment.service;
 
-import am.diploma.pvip.protocol.inventory.entity.IntentStatus;
-import am.diploma.pvip.protocol.inventory.entity.Product;
-import am.diploma.pvip.protocol.inventory.entity.TransactionIntent;
-import am.diploma.pvip.protocol.inventory.exception.NotFoundException;
-import am.diploma.pvip.protocol.inventory.repository.ProductRepository;
-import am.diploma.pvip.protocol.inventory.repository.TransactionIntentRepository;
+import am.diploma.pvip.protocol.payment.entity.Customer;
+import am.diploma.pvip.protocol.payment.entity.IntentStatus;
+import am.diploma.pvip.protocol.payment.entity.TransactionIntent;
+import am.diploma.pvip.protocol.payment.exception.NotFoundException;
+import am.diploma.pvip.protocol.payment.repository.CustomerRepository;
+import am.diploma.pvip.protocol.payment.repository.TransactionIntentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,41 +21,42 @@ import java.util.UUID;
 public class IntentService {
 
     private final TransactionIntentRepository transactionIntentRepository;
-    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
 
     @Transactional
-    public TransactionIntent registerIntent(UUID transactionId, Long productId, Integer quantity) {
-        log.info("Registering intent for transaction={}, product={}, quantity={}", transactionId, productId, quantity);
+    public TransactionIntent registerIntent(UUID transactionId, Long customerId, BigDecimal amount) {
+        log.info("Registering intent for transaction={}, customer={}, amount={}", transactionId, customerId, amount);
 
         // Idempotency check
-        var existing = transactionIntentRepository.findByTransactionIdAndProductId(transactionId, productId);
+        var existing = transactionIntentRepository.findByTransactionIdAndCustomerId(transactionId, customerId);
         if (existing.isPresent()) {
-            log.info("Intent already exists for transaction={}, product={}", transactionId, productId);
+            log.info("Intent already exists for transaction={}, customer={}", transactionId, customerId);
             return existing.get();
         }
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", "Product not found: " + productId));
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("CUSTOMER_NOT_FOUND", "Customer not found: " + customerId));
 
         TransactionIntent intent;
-        if (product.getStock() >= quantity) {
+        if (customer.getBalance().compareTo(amount) >= 0) {
             intent = TransactionIntent.builder()
                     .transactionId(transactionId)
-                    .productId(productId)
-                    .quantity(quantity)
+                    .customerId(customerId)
+                    .amount(amount)
                     .status(IntentStatus.READY)
                     .build();
-            log.info("Intent READY for transaction={}, product={}", transactionId, productId);
+            log.info("Intent READY for transaction={}, customer={}", transactionId, customerId);
         } else {
-            String reason = String.format("Insufficient stock: requested=%d, available=%d", quantity, product.getStock());
+            String reason = String.format("Insufficient balance: available %s, requested %s",
+                    customer.getBalance(), amount);
             intent = TransactionIntent.builder()
                     .transactionId(transactionId)
-                    .productId(productId)
-                    .quantity(quantity)
+                    .customerId(customerId)
+                    .amount(amount)
                     .status(IntentStatus.FAILED)
                     .reason(reason)
                     .build();
-            log.warn("Intent FAILED for transaction={}, product={}: {}", transactionId, productId, reason);
+            log.warn("Intent FAILED for transaction={}, customer={}: {}", transactionId, customerId, reason);
         }
 
         return transactionIntentRepository.save(intent);
@@ -65,6 +67,7 @@ public class IntentService {
         log.info("Finalizing intents for transaction={}", transactionId);
 
         List<TransactionIntent> intents = transactionIntentRepository.findByTransactionId(transactionId);
+
         if (intents.isEmpty()) {
             log.warn("No intents found for transaction={}", transactionId);
             return;
@@ -77,23 +80,26 @@ public class IntentService {
             }
 
             if (intent.getStatus() == IntentStatus.READY) {
-                Product product = productRepository.findByIdForUpdate(intent.getProductId())
-                        .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", "Product not found: " + intent.getProductId()));
+                Customer customer = customerRepository.findByIdForUpdate(intent.getCustomerId())
+                        .orElseThrow(() -> new NotFoundException("CUSTOMER_NOT_FOUND",
+                                "Customer not found: " + intent.getCustomerId()));
 
-                if (product.getStock() < intent.getQuantity()) {
+                if (customer.getBalance().compareTo(intent.getAmount()) < 0) {
                     intent.setStatus(IntentStatus.FAILED);
-                    intent.setReason("Insufficient stock at commit time");
+                    intent.setReason("Insufficient balance at commit time");
                     transactionIntentRepository.save(intent);
-                    log.warn("Intent id={} failed at commit: stock={}, requested={}", intent.getId(), product.getStock(), intent.getQuantity());
+                    log.warn("Intent id={} failed at commit: balance={}, requested={}",
+                            intent.getId(), customer.getBalance(), intent.getAmount());
                     continue;
                 }
 
-                product.setStock(product.getStock() - intent.getQuantity());
-                productRepository.save(product);
+                customer.setBalance(customer.getBalance().subtract(intent.getAmount()));
+                customerRepository.save(customer);
 
                 intent.setStatus(IntentStatus.COMMITTED);
                 transactionIntentRepository.save(intent);
-                log.info("Intent id={} committed, deducted {} from product={}", intent.getId(), intent.getQuantity(), intent.getProductId());
+                log.info("Intent id={} committed, deducted {} from customer={}",
+                        intent.getId(), intent.getAmount(), intent.getCustomerId());
             }
         }
     }
@@ -103,6 +109,7 @@ public class IntentService {
         log.info("Cancelling intents for transaction={}", transactionId);
 
         List<TransactionIntent> intents = transactionIntentRepository.findByTransactionId(transactionId);
+
         if (intents.isEmpty()) {
             log.warn("No intents found for transaction={}", transactionId);
             return;
