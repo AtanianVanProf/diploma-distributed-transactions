@@ -25,6 +25,8 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        props.put(JsonSerializer.TYPE_MAPPINGS,
+                "globalDecision:am.diploma.pvip.protocol.commitgate.event.GlobalDecisionEvent");
         return new DefaultKafkaProducerFactory<>(props);
     }
 
