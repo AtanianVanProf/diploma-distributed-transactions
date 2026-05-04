@@ -43,7 +43,7 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "order_id", nullable = false)
     private List<OrderItem> items;
 
     @PrePersist

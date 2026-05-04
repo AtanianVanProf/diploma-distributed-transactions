@@ -28,6 +28,8 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "am.diploma.pvip.protocol.*");
+        props.put(JsonDeserializer.TYPE_MAPPINGS,
+                "intentResponse:am.diploma.pvip.protocol.commitgate.event.IntentResponseEvent");
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
