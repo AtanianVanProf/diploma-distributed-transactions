@@ -1,0 +1,23 @@
+<div class="panel">
+  <div class="panel-header">
+    <h2>Customers</h2>
+  </div>
+
+  @if (customers().length === 0) {
+    <p class="empty-text">No customers found.</p>
+  } @else {
+    <div class="customer-list">
+      @for (customer of customers(); track customer.id) {
+        <div class="customer-card">
+          <div class="customer-info">
+            <span class="customer-name">{{ customer.name }}</span>
+            <span class="customer-email">{{ customer.email }}</span>
+          </div>
+          <div class="customer-balance" [class]="getBalanceClass(customer.balance)">
+            {{ customer.balance | currency:'USD':'symbol':'1.2-2' }}
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
