@@ -13,6 +13,7 @@ public class DemoService {
 
     @Transactional
     public void resetData() {
+        entityManager.createNativeQuery("DELETE FROM transaction_intent").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM product").executeUpdate();
 
         entityManager.createNativeQuery(
