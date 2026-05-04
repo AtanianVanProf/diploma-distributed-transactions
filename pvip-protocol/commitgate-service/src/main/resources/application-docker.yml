@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://pvip-commitgate-db:5432/commitgate_db
+    username: commitgate
+    password: commitgate
+  kafka:
+    bootstrap-servers: pvip-kafka:29092

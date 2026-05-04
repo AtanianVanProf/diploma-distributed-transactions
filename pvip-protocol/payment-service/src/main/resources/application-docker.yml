@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://pvip-payment-db:5432/payment_db
+    username: payment
+    password: payment
+  kafka:
+    bootstrap-servers: pvip-kafka:29092

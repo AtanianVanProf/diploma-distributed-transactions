@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://pvip-order-db:5432/order_db
+    username: orders
+    password: orders
+  kafka:
+    bootstrap-servers: pvip-kafka:29092
+
+services:
+  inventory-url: http://pvip-inventory-service:8112
+  payment-url: http://pvip-payment-service:8113
+  commitgate-url: http://pvip-commitgate-service:8114
