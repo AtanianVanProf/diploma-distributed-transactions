@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="002-create-participant-responses" author="commitgate-service">
+        <createTable tableName="participant_response">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="transaction_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="participant_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason" type="VARCHAR(500)"/>
+            <column name="received_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="participant_response"
+                baseColumnNames="transaction_id"
+                constraintName="fk_participant_response_transaction"
+                referencedTableName="transaction_registry"
+                referencedColumnNames="transaction_id"/>
+
+        <addUniqueConstraint
+                tableName="participant_response"
+                columnNames="transaction_id, participant_type"
+                constraintName="uq_participant_response_transaction_participant"/>
+
+        <rollback>
+            <dropTable tableName="participant_response"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -27,7 +27,6 @@ public class IntentService {
     public TransactionIntent registerIntent(UUID transactionId, Long customerId, BigDecimal amount) {
         log.info("Registering intent for transaction={}, customer={}, amount={}", transactionId, customerId, amount);
 
-        // Idempotency check
         var existing = transactionIntentRepository.findByTransactionIdAndCustomerId(transactionId, customerId);
         if (existing.isPresent()) {
             log.info("Intent already exists for transaction={}, customer={}", transactionId, customerId);
