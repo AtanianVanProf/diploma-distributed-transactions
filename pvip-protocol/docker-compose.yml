@@ -178,6 +178,24 @@ services:
     networks:
       - pvip-network
 
+  pvip-frontend:
+    build:
+      context: ./frontend
+    container_name: pvip-frontend
+    ports:
+      - "4204:80"
+    depends_on:
+      pvip-order-service:
+        condition: service_started
+      pvip-inventory-service:
+        condition: service_started
+      pvip-payment-service:
+        condition: service_started
+      pvip-commitgate-service:
+        condition: service_started
+    networks:
+      - pvip-network
+
 volumes:
   pvip-order-data:
   pvip-inventory-data:
