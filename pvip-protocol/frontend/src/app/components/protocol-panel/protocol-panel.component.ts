@@ -11,20 +11,33 @@ export class ProtocolPanelComponent {
   executions = input<ProtocolExecution[]>([]);
 
   getPhaseClass(execution: ProtocolExecution, phase: string): string {
-    const phases = ['PRE_VALIDATION', 'COLLECTING_INTENTS', 'DECISION'];
-    const currentIndex = phases.indexOf(execution.phase);
-    const phaseIndex = phases.indexOf(phase);
+    if (execution.status === 'COMMITTED') {
+      return 'phase-complete';
+    }
 
-    if (execution.status === 'COMMITTED' || execution.status === 'REJECTED') {
-      if (phaseIndex <= currentIndex) {
-        return execution.status === 'COMMITTED' ? 'phase-complete' : 'phase-failed';
-      }
+    if (execution.status === 'REJECTED') {
+      const phases = ['PRE_VALIDATION', 'COLLECTING_INTENTS', 'DECISION'];
+      const rejectPhase = this.mapPhase(execution.phase);
+      const rejectIndex = phases.indexOf(rejectPhase);
+      const phaseIndex = phases.indexOf(phase);
+
+      if (phaseIndex < rejectIndex) return 'phase-complete';
+      if (phaseIndex === rejectIndex) return 'phase-failed';
       return 'phase-skipped';
     }
+
+    const phases = ['PRE_VALIDATION', 'COLLECTING_INTENTS', 'DECISION'];
+    const currentIndex = phases.indexOf(this.mapPhase(execution.phase));
+    const phaseIndex = phases.indexOf(phase);
 
     if (phaseIndex < currentIndex) return 'phase-complete';
     if (phaseIndex === currentIndex) return 'phase-active';
     return 'phase-pending';
+  }
+
+  private mapPhase(phase: string): string {
+    if (phase === 'COMMITTED' || phase === 'REJECTED') return 'DECISION';
+    return phase;
   }
 
   getDuration(execution: ProtocolExecution): string {

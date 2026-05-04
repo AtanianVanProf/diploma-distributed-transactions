@@ -1,0 +1,52 @@
+<div class="panel">
+  <div class="panel-header">
+    <h2>Place Order</h2>
+  </div>
+
+  <div class="scenario-buttons">
+    <button class="scenario-btn scenario-happy" (click)="loadScenario('happy')">Happy Path</button>
+    <button class="scenario-btn scenario-stock" (click)="loadScenario('stock')">Insufficient Stock</button>
+    <button class="scenario-btn scenario-balance" (click)="loadScenario('balance')">Insufficient Balance</button>
+    <button class="scenario-btn scenario-timeout" (click)="loadScenario('timeout')">Timeout</button>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Customer</label>
+    <select [(ngModel)]="selectedCustomerId">
+      <option [ngValue]="null" disabled>Select customer...</option>
+      @for (customer of customers(); track customer.id) {
+        <option [ngValue]="customer.id">{{ customer.name }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="items-section">
+    <label class="form-label">Items</label>
+    @for (item of items; track $index; let i = $index) {
+      <div class="item-row">
+        <select [(ngModel)]="item.productId">
+          <option [ngValue]="null" disabled>Select product...</option>
+          @for (product of products(); track product.id) {
+            <option [ngValue]="product.id">{{ product.name }} ({{ product.stock }} in stock)</option>
+          }
+        </select>
+        <input type="number" [(ngModel)]="item.quantity" min="1" placeholder="Qty">
+        @if (items.length > 1) {
+          <button class="btn-remove" (click)="removeItem(i)">&#10005;</button>
+        }
+      </div>
+    }
+    <button class="btn-add-item" (click)="addItem()">+ Add Item</button>
+  </div>
+
+  <div class="action-row">
+    <button class="btn-primary" (click)="submit()" [disabled]="isProcessing()">
+      @if (isProcessing()) {
+        <span class="spinner"></span> Processing...
+      } @else {
+        Submit Order
+      }
+    </button>
+    <button class="btn-reset" (click)="reset()">Reset All</button>
+  </div>
+</div>

@@ -1,0 +1,98 @@
+@use '../../../styles/variables' as *;
+
+.panel {
+  background: $bg-card;
+  border: 1px solid rgba($primary-light, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.panel-header {
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $primary-light;
+  }
+}
+
+.no-changes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba($success, 0.1);
+  border: 1px solid rgba($success, 0.3);
+  border-radius: 8px;
+  padding: 14px 16px;
+  color: $success;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.no-changes-icon {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.changes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.changes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $text-secondary;
+  margin: 0;
+}
+
+.change-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.change-name {
+  font-size: 0.9rem;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.change-values {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.value-before {
+  color: $text-secondary;
+}
+
+.arrow {
+  color: $danger;
+  font-weight: 700;
+}
+
+.value-after {
+  font-weight: 600;
+  color: $text-primary;
+
+  &.decreased {
+    color: $danger;
+  }
+}
