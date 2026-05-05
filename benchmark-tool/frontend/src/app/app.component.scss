@@ -1,0 +1,30 @@
+.app-container {
+  min-height: 100vh;
+  padding: 32px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.app-header {
+  margin-bottom: 32px;
+
+  h1 {
+    color: #cdd6f4;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+}
+
+.app-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.panel-section,
+.charts-section,
+.table-section {
+  width: 100%;
+}

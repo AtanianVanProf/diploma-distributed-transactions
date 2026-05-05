@@ -1,0 +1,28 @@
+services:
+  benchmark-backend:
+    build: .
+    container_name: benchmark-backend
+    ports:
+      - "8120:8120"
+    environment:
+      BENCHMARK_TARGETS_ORCHESTRATOR_BASE_URL: http://host.docker.internal:8094
+      BENCHMARK_TARGETS_CHOREOGRAPHY_BASE_URL: http://host.docker.internal:8101
+      BENCHMARK_TARGETS_PVIP_BASE_URL: http://host.docker.internal:8111
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - benchmark-network
+
+  benchmark-frontend:
+    build: ./frontend
+    container_name: benchmark-frontend
+    ports:
+      - "4205:80"
+    depends_on:
+      - benchmark-backend
+    networks:
+      - benchmark-network
+
+networks:
+  benchmark-network:
+    driver: bridge

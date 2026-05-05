@@ -1,0 +1,30 @@
+server:
+  port: 8120
+
+benchmark:
+  targets:
+    orchestrator:
+      base-url: http://localhost:8094
+      place-order-path: /api/orchestrator/orders
+      sagas-path: /api/orchestrator/sagas
+      reset-path: /api/orchestrator/reset
+    choreography:
+      base-url: http://localhost:8101
+      place-order-path: /api/orders
+      saga-path: /api/orders/sagas/{sagaId}
+      reset-path: /api/demo/reset
+    pvip:
+      base-url: http://localhost:8111
+      place-order-path: /api/orders
+      protocol-path: /api/orders/protocol/{transactionId}
+      reset-path: /api/demo/reset
+  polling:
+    initial-delay-ms: 100
+    max-delay-ms: 1000
+    timeout-ms: 30000
+  scenarios:
+    happy-path-count: 50
+    stock-failure-count: 20
+    balance-failure-count: 20
+    timeout-count: 10
+    reset-batch-size: 3

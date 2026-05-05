@@ -1,0 +1,32 @@
+@if (results()) {
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th class="metric-col">Metric</th>
+          <th class="scenario-col">Scenario</th>
+          @for (impl of implementations; track impl) {
+            <th [class]="getImplClass(impl)">{{ getImplementationLabel(impl) }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (metric of metrics; track metric) {
+          @for (scenario of getScenariosForMetric(metric); track scenario; let i = $index) {
+            <tr [class.metric-first-row]="i === 0">
+              @if (i === 0) {
+                <td class="metric-cell" [attr.rowspan]="getScenariosForMetric(metric).length">{{ getMetricLabel(metric) }}</td>
+              }
+              <td class="scenario-cell">{{ getScenarioLabel(scenario) }}</td>
+              @for (impl of implementations; track impl) {
+                <td class="value-cell" [class]="getImplClass(impl)">
+                  {{ getValue(metric, scenario, impl) }}
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+}
