@@ -1,0 +1,19 @@
+<div class="app-container">
+  <header class="app-header">
+    <h1>Benchmark: Distributed Transaction Comparison</h1>
+  </header>
+
+  <main class="app-content">
+    <section class="panel-section">
+      <app-benchmark-panel #panel />
+    </section>
+
+    <section class="charts-section">
+      <app-comparison-charts [results]="panel.currentRun()?.results ?? null" />
+    </section>
+
+    <section class="table-section">
+      <app-results-table [results]="panel.currentRun()?.results ?? null" />
+    </section>
+  </main>
+</div>

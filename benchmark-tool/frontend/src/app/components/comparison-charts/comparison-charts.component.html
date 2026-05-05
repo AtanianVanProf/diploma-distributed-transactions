@@ -1,0 +1,23 @@
+<div class="charts-container">
+  @if (results()) {
+    <div class="charts-grid">
+      @for (metric of metrics; track metric) {
+        <div class="chart-card">
+          <h3 class="chart-title">{{ getMetricLabel(metric) }}</h3>
+          <p class="chart-subtitle">{{ getMetricDescription(metric) }}</p>
+          <div class="chart-wrapper">
+            <canvas baseChart
+              type="bar"
+              [data]="getChartData(metric)"
+              [options]="chartOptions">
+            </canvas>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="no-data">
+      <p>Run a benchmark to see comparison charts</p>
+    </div>
+  }
+</div>
